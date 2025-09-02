@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eğitim Planı - Polivalans</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Eğitim Planı Sayfası Stilleri */
+        .egitim-plani-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .egitim-plani-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .egitim-plani-header h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .geri-don-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .geri-don-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+        
+        /* ===== GERİ DÖNÜŞ BUTONU DEVRE DIŞI DURUMU ===== */
+        /* Geri dönüş butonu devre dışı olduğunda görsel stil */
+        .geri-don-btn.disabled {
+            opacity: 0.6;                    /* Buton şeffaflığını azalt */
+            cursor: not-allowed;             /* İmleci yasak işareti yap */
+            background: rgba(255,255,255,0.1); /* Arka plan rengini soluk yap */
+        }
+        
+        /* Devre dışı buton hover efektini kaldır */
+        .geri-don-btn.disabled:hover {
+            transform: none;                 /* Hover animasyonunu kaldır */
+            background: rgba(255,255,255,0.1); /* Hover rengini değiştirme */
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .egitim-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+        }
+        
+        .egitim-table th {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 15px 12px;
+            text-align: center;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .egitim-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        .egitim-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .date-input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 130px;
+            font-size: 14px;
+        }
+        
+        .date-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+        
+        .durum-kutusu {
+            width: 35px;
+            height: 35px;
+            border: 2px solid #007bff;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #007bff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        
+        .durum-kutusu:hover {
+            background: #007bff;
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .durum-kutusu.aktif {
+            background: #007bff;
+            color: white;
+        }
+        
+        .egitimci-dropdown {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 150px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .egitimci-dropdown:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+        
+        /* ===== KONTENJAN BİLGİSİ STİLLERİ ===== */
+        /* 
+         * Bu CSS bölümü, kontenjan sisteminin görsel sunumunu sağlar
+         * Başka bir projeye aktarırken renk kodlarını ve boyutları kendi tasarımınıza göre ayarlayın
+         * 
+         * ===== KONTENJAN SİSTEMİ RENK KODLAMASI =====
+         * - Kırmızı (#dc3545): Dolu sınıflar, seçilemez durumlar
+         * - Sarı (#ffc107): Az kontenjan, uyarı durumları
+         * - Yeşil (#28a745): Yeterli kontenjan, güvenli durumlar
+         * - Mavi (#007bff): Varsayılan, nötr durumlar
+         */
+        
+        /* ===== DROPDOWN SEÇENEK STİLLERİ ===== */
+        /* Kontenjan bilgisi için tooltip benzeri stil */
+        .egitimci-dropdown option {
+            padding: 8px 12px;          /* İç boşluk */
+            font-size: 14px;             /* Font boyutu */
+            line-height: 1.4;            /* Satır yüksekliği */
+        }
+        
+        /* ===== KONTENJAN DURUMUNA GÖRE RENK KODLAMASI ===== */
+        /* Dolu sınıflar için kırmızı stil (seçilemez) */
+        .egitimci-dropdown option[disabled] {
+            background-color: #fff5f5;   /* Açık kırmızı arka plan */
+            color: #dc3545 !important;   /* Kırmızı metin (öncelikli) */
+            font-weight: 500;            /* Yarı kalın font */
+        }
+        
+        /* Az kontenjan için sarı stil (uyarı) */
+        .egitimci-dropdown option[style*="color: #ffc107"] {
+            background-color: #fffbf0;   /* Açık sarı arka plan */
+            font-weight: 500;            /* Yarı kalın font */
+        }
+        
+        /* Yeterli kontenjan için yeşil stil (güvenli) */
+        .egitimci-dropdown option[style*="color: #28a745"] {
+            background-color: #f8fff9;   /* Açık yeşil arka plan */
+            font-weight: 500;            /* Yarı kalın font */
+        }
+        
+        /* ===== KONTENJAN ÖZET BİLGİ KUTUSU ===== */
+        /* Kontenjan özet bilgisi için ana konteyner stil */
+        .capacity-info {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);  /* Gradient arka plan */
+            border: 1px solid #dee2e6;   /* Kenarlık */
+            border-radius: 8px;          /* Köşe yuvarlaklığı */
+            padding: 15px;               /* İç boşluk */
+            margin: 20px 0;              /* Dış boşluk */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);  /* Gölge efekti */
+        }
+        
+        /* Kontenjan özet başlığı */
+        .capacity-info h4 {
+            margin: 0 0 15px 0;          /* Alt boşluk */
+            color: #495057;               /* Koyu gri metin */
+            font-size: 18px;             /* Font boyutu */
+            display: flex;                /* Flexbox düzeni */
+            align-items: center;          /* Dikey ortala */
+            gap: 10px;                    /* Öğeler arası boşluk */
+        }
+        
+        /* ===== KONTENJAN İSTATİSTİK KUTULARI ===== */
+        /* Kontenjan istatistiklerini gösteren grid düzeni */
+        .capacity-stats {
+            display: grid;                                                /* Grid düzeni */
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid */
+            gap: 15px;                                                    /* Grid öğeleri arası boşluk */
+        }
+        
+        /* Tek bir kontenjan istatistik kutusu */
+        .capacity-stat {
+            background: white;                    /* Beyaz arka plan */
+            padding: 12px;                        /* İç boşluk */
+            border-radius: 6px;                   /* Köşe yuvarlaklığı */
+            border-left: 4px solid #007bff;       /* Sol mavi kenarlık (varsayılan) */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Hafif gölge */
+        }
+        
+        /* ===== KONTENJAN DURUMUNA GÖRE KENARLIK RENKLERİ ===== */
+        /* Dolu sınıflar için kırmızı kenarlık */
+        .capacity-stat.full {
+            border-left-color: #dc3545;           /* Kırmızı sol kenarlık */
+        }
+        
+        /* Uyarı durumu için sarı kenarlık */
+        .capacity-stat.warning {
+            border-left-color: #ffc107;           /* Sarı sol kenarlık */
+        }
+        
+        /* Kontenjan var durumu için yeşil kenarlık */
+        .capacity-stat.available {
+            border-left-color: #28a745;           /* Yeşil sol kenarlık */
+        }
+        
+        /* ===== İSTATİSTİK KUTU İÇERİK STİLLERİ ===== */
+        /* İstatistik başlığı */
+        .capacity-stat h5 {
+            margin: 0 0 5px 0;                    /* Alt boşluk */
+            font-size: 14px;                      /* Font boyutu */
+            color: #6c757d;                       /* Orta gri metin */
+            text-transform: uppercase;            /* Büyük harf */
+            letter-spacing: 0.5px;                /* Harf arası boşluk */
+        }
+        
+        /* İstatistik değeri (sayı) */
+        .capacity-stat .value {
+            font-size: 24px;                      /* Büyük font boyutu */
+            font-weight: bold;                    /* Kalın font */
+            color: #495057;                       /* Koyu gri metin */
+        }
+        
+        /* İstatistik etiketi (açıklama) */
+        .capacity-stat .label {
+            font-size: 12px;                      /* Küçük font boyutu */
+            color: #6c757d;                       /* Orta gri metin */
+            margin-top: 5px;                      /* Üst boşluk */
+        }
+        
+        /* ===== EĞİTİMCİ DROPDOWN DURUM STİLLERİ ===== */
+        /* Başarılı eğitimci seçimi için yeşil stil */
+        .egitimci-dropdown.selected {
+            border-color: #28a745;           /* Yeşil kenarlık */
+            background-color: #f8fff9;       /* Açık yeşil arka plan */
+        }
+        
+        /* Uyarı durumu için sarı stil (eğitimci seçimi kaldırıldığında) */
+        .egitimci-dropdown.warning {
+            border-color: #ffc107;           /* Sarı kenarlık */
+            background-color: #fffbf0;       /* Açık sarı arka plan */
+        }
+        
+        /* Hata durumu için kırmızı stil (seçilmeyen eğitimciler) */
+        .egitimci-dropdown.error {
+            border-color: #dc3545;           /* Kırmızı kenarlık */
+            background-color: #fff5f5;       /* Açık kırmızı arka plan */
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .notification.success {
+            background: #28a745;
+        }
+        
+        .notification.warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .notification.error {
+            background: #dc3545;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Eğitim Planı Sayfası -->
+    <div class="egitim-plani-container">
+        <div class="egitim-plani-header">
+            <h2><i class="fas fa-graduation-cap"></i> Eğitim Planı</h2>
+            <!-- ===== GERİ DÖNÜŞ BUTONU ===== -->
+            <!-- Eğitimciler seçilmeden tıklanamaz, geriDonKontrol() fonksiyonu ile kontrol edilir -->
+            <a href="#" class="geri-don-btn" onclick="geriDonKontrol()">
+                <i class="fas fa-arrow-left"></i> Ana Sayfaya Dön
+            </a>
+        </div>
+        
+        <!-- ===== KONTENJAN BİLGİLERİ ALANI ===== -->
+        <!-- 
+         * Bu bölüm, kontenjan sisteminin genel özet bilgilerini gösterir
+         * Başlangıçta gizlidir (style="display: none;"), JavaScript ile gösterilir
+         * 
+         * ===== KONTENJAN SİSTEMİ ÖZELLİKLERİ =====
+         * - Toplam Kapasite: Tüm sınıfların maksimum öğrenci sayısı
+         * - Kayıtlı Öğrenci: Şu anda kayıtlı olan toplam öğrenci sayısı
+         * - Boş Kontenjan: Henüz doldurulmamış toplam kontenjan sayısı
+         * - Dolu Sınıflar: Kontenjanı tamamen dolu olan sınıf sayısı
+         * 
+         * ===== VERİTABANI UYARILARI =====
+         * Başka bir veritabanına aktarırken:
+         * - ID'leri kendi yapınıza göre güncelleyin
+         * - CSS sınıf adlarını kontrol edin
+         * - Font Awesome ikonlarını kendi ikon setinizle değiştirin
+         * 
+         * @author Sistem Geliştirici
+         * @version 1.0
+         * @since 2024-01-01
+         -->
+        <div id="capacityInfo" class="capacity-info" style="display: none;">
+            <!-- Kontenjan özet başlığı -->
+            <h4>
+                <i class="fas fa-chart-bar"></i>  <!-- Font Awesome ikon -->
+                Kontenjan Durumu                    <!-- Başlık metni -->
+            </h4>
+            
+            <!-- Kontenjan istatistik kutuları grid düzeni -->
+            <div class="capacity-stats">
+                <!-- ===== TOPLAM KAPASİTE KUTUSU ===== -->
+                <!-- Yeşil kenarlık (available) - yeterli kontenjan durumu -->
+                <div class="capacity-stat available">
+                    <h5>Toplam Kapasite</h5>                    <!-- İstatistik başlığı -->
+                    <div class="value" id="totalCapacity">0</div> <!-- Sayısal değer (JavaScript ile güncellenir) -->
+                    <div class="label">Öğrenci</div>             <!-- Birim etiketi -->
+                </div>
+                
+                <!-- ===== KAYITLI ÖĞRENCİ KUTUSU ===== -->
+                <!-- Sarı kenarlık (warning) - uyarı durumu -->
+                <div class="capacity-stat warning">
+                    <h5>Kayıtlı Öğrenci</h5>                    <!-- İstatistik başlığı -->
+                    <div class="value" id="totalEnrolled">0</div> <!-- Sayısal değer (JavaScript ile güncellenir) -->
+                    <div class="label">Öğrenci</div>             <!-- Birim etiketi -->
+                </div>
+                
+                <!-- ===== BOŞ KONTENJAN KUTUSU ===== -->
+                <!-- Yeşil kenarlık (available) - güvenli durum -->
+                <div class="capacity-stat available">
+                    <h5>Boş Kontenjan</h5>                      <!-- İstatistik başlığı -->
+                    <div class="value" id="totalAvailable">0</div> <!-- Sayısal değer (JavaScript ile güncellenir) -->
+                    <div class="label">Kontenjan</div>            <!-- Birim etiketi -->
+                </div>
+                
+                <!-- ===== DOLU SINIFLAR KUTUSU ===== -->
+                <!-- Kırmızı kenarlık (full) - kritik durum -->
+                <div class="capacity-stat full">
+                    <h5>Dolu Sınıflar</h5>                      <!-- İstatistik başlığı -->
+                    <div class="value" id="fullClasses">0</div>   <!-- Sayısal değer (JavaScript ile güncellenir) -->
+                    <div class="label">Sınıf</div>                <!-- Birim etiketi -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table class="egitim-table">
+                <thead>
+                    <tr>
+                        <th>Sicil No</th>
+                        <th>Ad Soyad</th>
+                        <th>Eğitimler</th>
+                        <th>Eğitimciler</th>
+                        <th>Başarı Durumu</th>
+                    </tr>
+                </thead>
+                <tbody id="egitimPlaniTbody">
+                    <!-- Veriler JavaScript ile doldurulacak -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Boş durum mesajı -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <i class="fas fa-graduation-cap"></i>
+            <h3>Henüz Eğitim Planı Oluşturulmamış</h3>
+            <p>Eğitim planı oluşturmak için ana sayfadan beceri seçimi yapın.</p>
+        </div>
+    </div>
+
+    <!-- Bildirim container -->
+    <div id="notification-container"></div>
+
+    <script>
+        // Eğitim planı sayfası JavaScript fonksiyonları
+        
+        // ===== SAYFA YÜKLENME VE GÜVENLİK KONTROLLERİ =====
+        // Sayfa yüklendiğinde çalışacak ana fonksiyon
+        document.addEventListener('DOMContentLoaded', function() {
+            // URL parametrelerini kontrol et (ana sayfadan gelen veriler)
+            const urlParams = new URLSearchParams(window.location.search);
+            const personName = urlParams.get('person');    // Seçilen kişi adı
+            const skills = urlParams.get('skills');        // Seçilen beceriler (virgülle ayrılmış)
+            
+            if (personName && skills) {
+                // URL'den gelen verilerle eğitim planını oluştur
+                const skillsArray = skills.split(',').map(skill => skill.trim());
+                egitimPlaniTablosunuDoldur(skillsArray, personName);
+            } else {
+                // Veritabanından mevcut eğitim planlarını yükle (direkt sayfa açıldığında)
+                loadExistingTrainingPlans();
+            }
+            
+            // ===== SAYFA GÜVENLİK KONTROLÜ =====
+            // Sayfa kapatılmaya çalışıldığında (tarayıcı kapatma, sayfa yenileme, geri gitme)
+            // Eğitimciler seçilmeden sayfadan ayrılmaya çalışılırsa uyarı göster
+            window.addEventListener('beforeunload', function(e) {
+                if (!tumEgitimcilerSecildiMi()) {
+                    e.preventDefault();  // Sayfa kapatmayı engelle
+                    e.returnValue = 'Eğitimciler seçilmeden sayfadan ayrılamazsınız!';
+                    return 'Eğitimciler seçilmeden sayfadan ayrılamazsınız!';
+                }
+            });
+            
+            // ===== BUTON DURUMU KONTROLÜ =====
+            // Sayfa yüklendikten 1 saniye sonra geri dönüş butonunun durumunu kontrol et
+            // Bu gecikme, tüm dropdown'ların yüklenmesini beklemek için
+            setTimeout(() => {
+                geriDonButonDurumunuGuncelle();
+            }, 1000);
+        });
+        
+        // ===== EĞİTİMCİ SEÇİM KONTROL FONKSİYONLARI =====
+        
+        /**
+         * Tüm eğitimci dropdown'larında seçim yapılıp yapılmadığını kontrol eder
+         * @returns {boolean} Tüm eğitimciler seçildiyse true, aksi halde false
+         */
+        function tumEgitimcilerSecildiMi() {
+            // Sayfadaki tüm eğitimci dropdown'larını bul
+            const egitimciDropdowns = document.querySelectorAll('.egitimci-dropdown');
+            let tumSecildi = true;
+            
+            // Her dropdown'ı kontrol et
+            egitimciDropdowns.forEach(dropdown => {
+                if (!dropdown.value || dropdown.value.trim() === '') {
+                    tumSecildi = false;  // Boş dropdown bulundu
+                }
+            });
+            
+            return tumSecildi;
+        }
+        
+        /**
+         * Geri dönüş butonunun görsel durumunu günceller
+         * Tüm eğitimciler seçilmeden buton devre dışı kalır
+         */
+        function geriDonButonDurumunuGuncelle() {
+            const geriDonBtn = document.querySelector('.geri-don-btn');
+            const tumSecildi = tumEgitimcilerSecildiMi();
+            
+            if (tumSecildi) {
+                // Tüm eğitimciler seçildi - buton aktif
+                geriDonBtn.classList.remove('disabled');
+                geriDonBtn.style.cursor = 'pointer';
+                geriDonBtn.title = 'Ana sayfaya dön';
+            } else {
+                // Eğitimciler eksik - buton devre dışı
+                geriDonBtn.classList.add('disabled');
+                geriDonBtn.style.cursor = 'not-allowed';
+                geriDonBtn.title = 'Tüm eğitimciler seçilmeden ana sayfaya dönemezsiniz';
+            }
+        }
+        
+        // ===== EĞİTİM PLANI TABLO YÖNETİMİ =====
+        
+        /**
+         * Ana sayfadan gelen beceri verileriyle eğitim planı tablosunu oluşturur
+         * @param {Array} selectedSkills - Seçilen beceriler listesi
+         * @param {string} clickedPerson - Beceri seçilen kişi adı
+         */
+        function egitimPlaniTablosunuDoldur(selectedSkills, clickedPerson) {
+            // DOM elementlerini al
+            const tbody = document.getElementById('egitimPlaniTbody');    // Tablo gövdesi
+            const emptyState = document.getElementById('emptyState');     // Boş durum mesajı
+            
+            // ===== VERİ KONTROLÜ =====
+            // Eğer beceri seçilmemişse boş durum mesajını göster
+            if (!selectedSkills || selectedSkills.length === 0) {
+                tbody.innerHTML = '';                    // Tabloyu temizle
+                emptyState.style.display = 'block';      // Boş durum mesajını göster
+                return;
+            }
+            
+            // ===== TABLO HAZIRLAMA =====
+            emptyState.style.display = 'none';           // Boş durum mesajını gizle
+            tbody.innerHTML = '';                        // Tabloyu temizle
+            
+            // Debug bilgileri
+            console.log('🎯 Eğitim planı oluşturuluyor...');
+            console.log('👤 Tıklanan kişi:', clickedPerson);
+            console.log('📚 Seçilen beceriler:', selectedSkills);
+            
+            // Veritabanından tüm planlanan becerileri yükle ve tabloya ekle
+            loadAllPlannedSkills(tbody, selectedSkills, clickedPerson);
+        }
+        
+        // ===== VERİTABANI VERİ YÜKLEME =====
+        
+        /**
+         * Veritabanından planlanan becerileri yükler ve tabloya ekler
+         * @param {HTMLElement} tbody - Tablo gövdesi elementi
+         * @param {Array} selectedSkills - Seçilen beceriler listesi
+         * @param {string} clickedPerson - Beceri seçilen kişi adı
+         */
+        function loadAllPlannedSkills(tbody, selectedSkills, clickedPerson) {
+            // ===== API ÇAĞRISI =====
+            // Veritabanından mevcut planlanan becerileri çek
+            fetch('api/get_planned_skills.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // ===== BAŞARILI VERİ YÜKLEME =====
+                        console.log('📋 Veritabanından planlanan beceriler yüklendi:', data.planned_skills);
+                        
+                        // Tüm planlanan becerileri tabloya ekle
+                        displayAllPlannedSkills(tbody, data.planned_skills, selectedSkills, clickedPerson);
+                    } else {
+                        // ===== API HATASI =====
+                        console.error('❌ Planlanan beceriler yüklenemedi:', data.message);
+                        // Hata durumunda sadece yeni seçilen becerileri göster
+                        displaySelectedSkillsOnly(tbody, selectedSkills, clickedPerson);
+                    }
+                })
+                .catch(error => {
+                    // ===== AĞ HATASI =====
+                    console.error('❌ Planlanan beceriler yükleme hatası:', error);
+                    // Hata durumunda sadece yeni seçilen becerileri göster
+                    displaySelectedSkillsOnly(tbody, selectedSkills, clickedPerson);
+                });
+        }
+        
+        // ===== TABLO SATIR OLUŞTURMA =====
+        
+        /**
+         * Veritabanından gelen planlanan becerileri ve yeni seçilen becerileri tabloya ekler
+         * @param {HTMLElement} tbody - Tablo gövdesi elementi
+         * @param {Array} plannedSkills - Veritabanından gelen planlanan beceriler
+         * @param {Array} selectedSkills - Yeni seçilen beceriler
+         * @param {string} clickedPerson - Beceri seçilen kişi adı
+         */
+        function displayAllPlannedSkills(tbody, plannedSkills, selectedSkills, clickedPerson) {
+            let rowIndex = 1;  // Sicil numarası için sayaç
+            
+            // ===== MEVCUT PLANLANAN BECERİLER =====
+            // Önce veritabanındaki tüm planlanan becerileri tabloya ekle
+            plannedSkills.forEach((plannedSkill, index) => {
+                const row = document.createElement('tr');  // Yeni tablo satırı oluştur
+                
+                // Sicil No oluştur (3 haneli, başında 0 ile)
+                const sicilNo = rowIndex.toString().padStart(3, '0');
+                
+                // ===== SATIR İÇERİĞİ =====
+                // Her satırda: Sicil No, Ad Soyad, Eğitim, Eğitimci Dropdown, Başarı Durumu
+                row.innerHTML = `
+                    <td>${sicilNo}</td>  <!-- Sicil No -->
+                    <td>${plannedSkill.person_name}</td>  <!-- Kişi adı -->
+                    <td>${plannedSkill.skill_name.trim()}</td>  <!-- Beceri adı (boşlukları temizle) -->
+                    <td>
+                        <!-- Eğitimci seçim dropdown'ı -->
+                        <select class="egitimci-dropdown" 
+                                data-person="${plannedSkill.person_name}" 
+                                data-skill="${plannedSkill.skill_name}" 
+                                onchange="updateEgitimci(this)">
+                            <option value="">Eğitimci Seçin</option>
+                        </select>
+                    </td>
+                    <td>
+                        <!-- Başarı durumu seçim butonu -->
+                        <div style="display: flex; justify-content: center; align-items: center;">
+                            <button type="button" class="durum-kutusu" 
+                                    onclick="toggleDurumKutusu(this)" 
+                                    title="Durum Seç"> </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);  // Satırı tabloya ekle
+                rowIndex++;  // Sicil numarasını artır
+            });
+            
+            // ===== YENİ SEÇİLEN BECERİLER =====
+            // Yeni seçilen becerileri de ekle (eğer henüz veritabanında yoksa)
+            if (selectedSkills && clickedPerson) {
+                selectedSkills.forEach((skill) => {
+                    // Bu beceri zaten veritabanında var mı kontrol et (duplikasyon önleme)
+                    const alreadyExists = plannedSkills.some(ps => 
+                        ps.person_name === clickedPerson && ps.skill_name === skill
+                    );
+                    
+                    if (!alreadyExists) {
+                        // Yeni beceri - tabloya ekle
+                        const row = document.createElement('tr');
+                        const sicilNo = rowIndex.toString().padStart(3, '0');
+                        
+                        // Organizasyon adını al (varsayılan olarak boş bırak)
+                        const clickedOrganization = '';
+                        
+                        // Yeni beceri satırı oluştur
+                        row.innerHTML = `
+                            <td>${sicilNo}</td>  <!-- Sicil No -->
+                            <td>${clickedPerson}</td>  <!-- Kişi adı -->
+                            <td>${skill.trim()}</td>  <!-- Beceri adı -->
+                            <td>
+                                <!-- Eğitimci seçim dropdown'ı -->
+                                <select class="egitimci-dropdown" 
+                                        data-person="${clickedPerson}" 
+                                        data-skill="${skill.trim()}" 
+                                        onchange="updateEgitimci(this)">
+                                    <option value="">Eğitimci Seçin</option>
+                                </select>
+                            </td>
+                            <td>
+                                <!-- Başarı durumu seçim butonu -->
+                                <div style="display: flex; justify-content: center; align-items: center;">
+                                    <button type="button" class="durum-kutusu" 
+                                            onclick="toggleDurumKutusu(this)" 
+                                            title="Durum Seç"> </button>
+                                </div>
+                            </td>
+                        `;
+                        
+                        tbody.appendChild(row);  // Yeni satırı tabloya ekle
+                        rowIndex++;  // Sicil numarasını artır
+                    }
+                });
+            }
+            
+            console.log('✅ Tüm planlanan beceriler tabloya eklendi');
+            
+            // ===== SONRAKİ ADIMLAR =====
+            // Eğitimcileri yükle ve dropdown'ları doldur
+            loadEgitimciler();
+            
+            // Geri dönüş butonunun durumunu güncelle (dropdown'lar yüklendikten sonra)
+            geriDonButonDurumunuGuncelle();
+        }
+        
+        // Sadece seçilen becerileri göster (hata durumunda)
+        function displaySelectedSkillsOnly(tbody, selectedSkills, clickedPerson) {
+            if (clickedPerson && selectedSkills) {
+                selectedSkills.forEach((skill, index) => {
+                    const row = document.createElement('tr');
+                    const sicilNo = (index + 1).toString().padStart(3, '0');
+                    
+                    row.innerHTML = `
+                        <td>${sicilNo}</td>
+                        <td>${clickedPerson}</td>
+                        <td>${skill.trim()}</td>
+                        <td>
+                            <select class="egitimci-dropdown" 
+                                    data-person="${clickedPerson}" 
+                                    data-skill="${skill.trim()}" 
+                                    onchange="updateEgitimci(this)">
+                                <option value="">Eğitimci Seçin</option>
+                            </select>
+                        </td>
+                        <td>
+                            <div style="display: flex; justify-content: center; align-items: center;">
+                                <button type="button" class="durum-kutusu" 
+                                        onclick="toggleDurumKutusu(this)" 
+                                        title="Durum Seç"> </button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+                
+                // Geri dönüş butonunun durumunu güncelle
+                setTimeout(() => {
+                    geriDonButonDurumunuGuncelle();
+                }, 500);
+            }
+        }
+        
+        // ===== BAŞARI DURUMU YÖNETİMİ =====
+        
+        /**
+         * Başarı durumu kutucuğunu değiştirir ve veritabanına kaydeder
+         * @param {HTMLElement} button - Tıklanan durum kutucuğu butonu
+         */
+        function toggleDurumKutusu(button) {
+            // ===== DOM VERİLERİNİ AL =====
+            const row = button.closest('tr');  // Butonun bulunduğu satır
+            const personName = row.cells[1].textContent.trim();  // Ad Soyad (2. sütun)
+            const skillName = row.cells[2].textContent.trim();   // Eğitim (3. sütun)
+            
+            // ===== DURUM KONTROLÜ =====
+            if (button.textContent.trim() === '' || button.textContent.trim() === ' ') {
+                // ===== TAMAMLANDI DURUMU =====
+                // Tik işareti ekle (✓)
+                button.textContent = '✓';
+                button.classList.add('aktif');
+                
+                // Veritabanına "completed" olarak kaydet
+                updateTrainingStatus(personName, skillName, 'completed');
+                
+                // Başarılı görsel geri bildirim
+                button.style.backgroundColor = '#28a745';  // Yeşil arka plan
+                button.style.color = 'white';
+                button.style.borderColor = '#28a745';
+                
+            } else {
+                // ===== BEKLİYOR DURUMU =====
+                // Tik işaretini kaldır
+                button.textContent = ' ';
+                button.classList.remove('aktif');
+                
+                // Veritabanına "pending" olarak kaydet
+                updateTrainingStatus(personName, skillName, 'pending');
+                
+                // Normal görsel duruma dön
+                button.style.backgroundColor = 'white';
+                button.style.color = '#007bff';
+                button.style.borderColor = '#007bff';
+            }
+        }
+        
+        /**
+         * Başarı durumunu veritabanına kaydeder
+         * @param {string} personName - Kişi adı
+         * @param {string} skillName - Beceri/Eğitim adı
+         * @param {string} status - Durum: 'pending' veya 'completed'
+         */
+        function updateTrainingStatus(personName, skillName, status) {
+            // ===== API ÇAĞRISI =====
+            fetch('api/update_training_status.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    person_name: personName,
+                    skill_name: skillName,
+                    status: status
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // ===== BAŞARILI KAYIT =====
+                    const statusText = status === 'completed' ? 'tamamlandı' : 'bekliyor';
+                    showNotification(`Başarı durumu "${statusText}" olarak güncellendi`, 'success');
+                    
+                    console.log('✅ Başarı durumu güncellendi:', {
+                        person: personName,
+                        skill: skillName,
+                        status: status,
+                        timestamp: data.data.timestamp
+                    });
+                    
+                } else {
+                    // ===== API HATASI =====
+                    showNotification(`Başarı durumu güncellenemedi: ${data.message}`, 'error');
+                    console.error('❌ API Hatası:', data.message);
+                    
+                    // Hata durumunda görsel durumu geri al
+                    const button = event.target;
+                    if (status === 'completed') {
+                        button.textContent = ' ';
+                        button.classList.remove('aktif');
+                        button.style.backgroundColor = 'white';
+                        button.style.color = '#007bff';
+                        button.style.borderColor = '#007bff';
+                    } else {
+                        button.textContent = '✓';
+                        button.classList.add('aktif');
+                        button.style.backgroundColor = '#28a745';
+                        button.style.color = 'white';
+                        button.style.borderColor = '#28a745';
+                    }
+                }
+            })
+            .catch(error => {
+                // ===== AĞ HATASI =====
+                showNotification('Başarı durumu güncellenirken ağ hatası oluştu', 'error');
+                console.error('❌ Ağ Hatası:', error);
+                
+                // Hata durumunda görsel durumu geri al
+                const button = event.target;
+                if (status === 'completed') {
+                    button.textContent = ' ';
+                    button.classList.remove('aktif');
+                    button.style.backgroundColor = 'white';
+                    button.style.color = '#007bff';
+                    button.style.borderColor = '#007bff';
+                } else {
+                    button.textContent = '✓';
+                    button.classList.add('aktif');
+                    button.style.backgroundColor = '#28a745';
+                    button.style.color = 'white';
+                    button.style.borderColor = '#28a745';
+                }
+            });
+        }
+        
+        // ===== EĞİTİMCİ SEÇİM YÖNETİMİ =====
+        
+        /**
+         * Eğitimci dropdown'ında seçim yapıldığında çalışan fonksiyon
+         * @param {HTMLElement} selectElement - Değişen dropdown elementi
+         */
+        function updateEgitimci(selectElement) {
+            // Dropdown'dan gerekli verileri al
+            const personName = selectElement.getAttribute('data-person');    // Kişi adı
+            const skillName = selectElement.getAttribute('data-skill');      // Beceri adı
+            const teacherId = selectElement.value;                          // Seçilen eğitimci ID'si
+            
+            console.log('👨‍🏫 Eğitimci güncelleniyor:', {
+                person: personName,
+                skill: skillName,
+                teacherId: teacherId
+            });
+            
+            if (teacherId) {
+                // ===== BAŞARILI EĞİTİMCİ SEÇİMİ =====
+                // Seçilen eğitimciyi API'ye kaydet (gelecekte implement edilecek)
+                // TODO: API entegrasyonu yapılacak
+                showNotification('Eğitimci başarıyla atandı', 'success');
+                
+                // Dropdown'ı başarılı seçim için yeşil ile vurgula
+                selectElement.style.borderColor = '#28a745';  // Yeşil kenarlık
+                selectElement.style.boxShadow = '0 0 0 2px rgba(40, 167, 69, 0.2)';  // Yeşil gölge
+                
+                // 2 saniye sonra vurgulamayı kaldır (normal stile dön)
+                setTimeout(() => {
+                    selectElement.style.borderColor = '';
+                    selectElement.style.boxShadow = '';
+                }, 2000);
+                
+                // Geri dönüş butonunun durumunu güncelle (eğitimci seçildi)
+                geriDonButonDurumunuGuncelle();
+            } else {
+                // ===== EĞİTİMCİ SEÇİMİ KALDIRILDI =====
+                // Eğitimci seçimi kaldırıldıysa uyarı göster
+                showNotification('Lütfen bir eğitimci seçin', 'warning');
+                
+                // Dropdown'ı uyarı için sarı ile vurgula
+                selectElement.style.borderColor = '#ffc107';  // Sarı kenarlık
+                selectElement.style.boxShadow = '0 0 0 2px rgba(255, 193, 7, 0.2)';  // Sarı gölge
+                
+                // 2 saniye sonra vurgulamayı kaldır
+                setTimeout(() => {
+                    selectElement.style.borderColor = '';
+                    selectElement.style.boxShadow = '';
+                }, 2000);
+                
+                // Geri dönüş butonunun durumunu güncelle (eğitimci kaldırıldı)
+                geriDonButonDurumunuGuncelle();
+            }
+        }
+        
+        // ===== EĞİTİMCİ VERİ YÜKLEME =====
+        
+        /**
+         * API'den eğitimci listesini yükler ve tüm dropdown'ları doldurur
+         * Bu fonksiyon sayfa yüklendiğinde ve yeni satırlar eklendiğinde çağrılır
+         * 
+         * ===== KONTENJAN SİSTEMİ ENTEGRASYONU =====
+         * Bu fonksiyon, events tablosundan kontenjan bilgilerini çeker ve:
+         * 1. Her eğitimci için kapasite durumunu hesaplar
+         * 2. Dropdown seçeneklerini kontenjan bilgileriyle zenginleştirir
+         * 3. Dolu sınıfları devre dışı bırakır
+         * 4. Kontenjan durumuna göre renk kodlaması uygular
+         * 5. Genel kontenjan özetini gösterir
+         * 
+         * ===== VERİTABANI UYARILARI =====
+         * Başka bir veritabanına aktarırken:
+         * - API endpoint'ini güncelleyin (api/get_teachers.php)
+         * - Tablo adlarını değiştirin (events -> training_events)
+         * - Sütun adlarını değiştirin (capacity -> max_students)
+         * - Veri tiplerini kontrol edin
+         * 
+         * @author Sistem Geliştirici
+         * @version 1.0
+         * @since 2024-01-01
+         */
+        function loadEgitimciler() {
+            // ===== API ÇAĞRISI =====
+            // Eğitimci verilerini ve kontenjan bilgilerini API'den çek
+            // Bu API, events tablosundan teacher_id, teacher_name, capacity, enrolled_count gibi verileri getirir
+            fetch('api/get_teachers.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('👨‍🏫 Eğitimciler ve kontenjan bilgileri yüklendi:', data.teachers);
+                        
+                        // ===== DROPDOWN DOLDURMA İŞLEMİ =====
+                        // Sayfadaki tüm eğitimci dropdown'larını bul ve doldur
+                        document.querySelectorAll('.egitimci-dropdown').forEach(dropdown => {
+                            // Mevcut seçenekleri temizle (ilk seçenek "Eğitimci Seçin" hariç)
+                            // Bu işlem, yeni veriler yüklenirken eski verilerin karışmasını önler
+                            while (dropdown.children.length > 1) {
+                                dropdown.removeChild(dropdown.lastChild);
+                            }
+                            
+                            // ===== KONTENJAN BİLGİLERİ İLE EĞİTİMCİ SEÇENEKLERİ =====
+                            // API'den gelen her eğitimci için dropdown seçeneği oluştur
+                            data.teachers.forEach(teacher => {
+                                const option = document.createElement('option');
+                                option.value = teacher.teacher_id;      // Eğitimci ID'si (veritabanından)
+                                
+                                // ===== KONTENJAN DURUMUNA GÖRE METİN FORMATI =====
+                                let teacherText = teacher.teacher_name;  // Temel eğitimci adı
+                                
+                                // Kontenjan bilgilerini kontrol et ve ekle
+                                if (teacher.capacity && teacher.enrolled_count !== undefined) {
+                                    const availableSlots = teacher.available_slots;        // Boş kontenjan sayısı
+                                    const capacityStatus = teacher.capacity_status;       // Kontenjan durumu
+                                    
+                                    // ===== KONTENJAN DURUMUNA GÖRE RENK KODLAMASI =====
+                                    if (capacityStatus === 'full') {
+                                        // DOLU SINIF: Kırmızı renk, seçilemez
+                                        teacherText += ` (DOLU - ${teacher.enrolled_count}/${teacher.capacity})`;
+                                        option.style.color = '#dc3545';  // Kırmızı renk
+                                        option.disabled = true;          // Seçimi devre dışı bırak
+                                        
+                                    } else if (capacityStatus === 'overbooked') {
+                                        // AŞIRI DOLU SINIF: Kırmızı renk, seçilemez
+                                        teacherText += ` (AŞIRI DOLU - ${teacher.enrolled_count}/${teacher.capacity})`;
+                                        option.style.color = '#dc3545';  // Kırmızı renk
+                                        option.disabled = true;          // Seçimi devre dışı bırak
+                                        
+                                    } else {
+                                        // KONTENJAN VAR: Kontenjan sayısı ve renk kodlaması
+                                        teacherText += ` (${availableSlots} kontenjan - ${teacher.enrolled_count}/${teacher.capacity})`;
+                                        
+                                        // Kontenjan miktarına göre renk belirleme
+                                        if (availableSlots <= 3) {
+                                            option.style.color = '#ffc107';  // Sarı (az kontenjan - uyarı)
+                                        } else {
+                                            option.style.color = '#28a745';  // Yeşil (yeterli kontenjan - güvenli)
+                                        }
+                                    }
+                                }
+                                
+                                // Seçeneği dropdown'a ekle
+                                option.textContent = teacherText;
+                                dropdown.appendChild(option);
+                            });
+                        });
+                        
+                        // ===== BUTON DURUMU GÜNCELLEME =====
+                        // Eğitimciler yüklendikten sonra geri dönüş butonunun durumunu güncelle
+                        // 500ms gecikme ile dropdown'ların tamamen doldurulmasını bekle
+                        setTimeout(() => {
+                            geriDonButonDurumunuGuncelle();
+                        }, 500);
+                        
+                        // ===== KONTENJAN ÖZETİ GÖSTER =====
+                        // Sayfanın üst kısmında genel kontenjan istatistiklerini göster
+                        showCapacitySummary(data.teachers);
+                        
+                    } else {
+                        // ===== HATA DURUMU =====
+                        // API'den hata mesajı geldiğinde kullanıcıya bildir
+                        console.error('❌ Eğitimciler yüklenemedi:', data.message);
+                        showNotification('Eğitimciler yüklenirken hata oluştu', 'error');
+                    }
+                })
+                .catch(error => {
+                    // ===== AĞ HATASI =====
+                    // API çağrısı sırasında ağ hatası oluştuğunda
+                    console.error('❌ Eğitimci yükleme hatası:', error);
+                    showNotification('Eğitimciler yüklenirken hata oluştu', 'error');
+                    
+                    // Hata durumunda da buton durumunu güncelle (boş dropdown'lar için)
+                    setTimeout(() => {
+                        geriDonButonDurumunuGuncelle();
+                    }, 500);
+                });
+        }
+        
+        /**
+         * Kontenjan özet bilgilerini hesaplar ve sayfanın üst kısmında gösterir
+         * 
+         * ===== KONTENJAN SİSTEMİ ÖZETİ =====
+         * Bu fonksiyon, yüklenen eğitimci verilerinden kontenjan istatistiklerini hesaplar:
+         * 1. Toplam kapasite: Tüm sınıfların maksimum öğrenci sayısı
+         * 2. Toplam kayıtlı: Şu anda kayıtlı olan öğrenci sayısı
+         * 3. Toplam boş kontenjan: Henüz doldurulmamış kontenjan sayısı
+         * 4. Dolu sınıflar: Kontenjanı tamamen dolu olan sınıf sayısı
+         * 5. Kontenjanı olan sınıflar: Öğrenci alabilen sınıf sayısı
+         * 
+         * ===== VERİTABANI UYARILARI =====
+         * Başka bir veritabanına aktarırken:
+         * - Sütun adlarını kontrol edin (capacity, enrolled_count, available_slots)
+         * - Veri tiplerini kontrol edin (number, integer)
+         * - Null değer kontrolünü güncelleyin
+         * 
+         * @param {Array} teachers - API'den gelen eğitimci listesi
+         * @param {Object} teachers[].capacity - Sınıf kapasitesi
+         * @param {Object} teachers[].enrolled_count - Kayıtlı öğrenci sayısı
+         * @param {Object} teachers[].available_slots - Boş kontenjan sayısı
+         * @param {Object} teachers[].capacity_status - Kontenjan durumu ('available', 'full', 'overbooked')
+         * 
+         * @author Sistem Geliştirici
+         * @version 1.0
+         * @since 2024-01-01
+         */
+        function showCapacitySummary(teachers) {
+            // ===== KONTENJAN İSTATİSTİKLERİ HESAPLAMA =====
+            // Reduce fonksiyonu ile toplam değerleri hesapla
+            const totalCapacity = teachers.reduce((sum, teacher) => sum + (teacher.capacity || 0), 0);           // Toplam kapasite
+            const totalEnrolled = teachers.reduce((sum, teacher) => sum + (teacher.enrolled_count || 0), 0);   // Toplam kayıtlı öğrenci
+            const totalAvailable = teachers.reduce((sum, teacher) => sum + (teacher.available_slots || 0), 0); // Toplam boş kontenjan
+            
+            // Filter fonksiyonu ile sınıf sayılarını hesapla
+            const fullClasses = teachers.filter(teacher => teacher.capacity_status === 'full').length;          // Dolu sınıf sayısı
+            const availableClasses = teachers.filter(teacher => teacher.capacity_status === 'available').length; // Kontenjanı olan sınıf sayısı
+            
+            // ===== CONSOLE LOG =====
+            // Geliştirici için detaylı kontenjan özeti (tarayıcı console'unda görünür)
+            console.log('📊 Kontenjan Özeti:', {
+                'Toplam Kapasite': totalCapacity,
+                'Toplam Kayıtlı': totalEnrolled,
+                'Toplam Boş Kontenjan': totalAvailable,
+                'Dolu Sınıflar': fullClasses,
+                'Kontenjanı Olan Sınıflar': availableClasses
+            });
+            
+            // ===== HTML KONTENJAN BİLGİLERİNİ GÜNCELLE =====
+            // Sayfanın üst kısmındaki kontenjan bilgi kutusunu bul
+            const capacityInfo = document.getElementById('capacityInfo');
+            if (capacityInfo) {
+                // Kontenjan bilgi alanını görünür yap
+                capacityInfo.style.display = 'block';
+                
+                // ===== İSTATİSTİK DEĞERLERİNİ GÜNCELLE =====
+                // Her bir istatistik kutusundaki değerleri güncelle
+                document.getElementById('totalCapacity').textContent = totalCapacity;      // Toplam kapasite
+                document.getElementById('totalEnrolled').textContent = totalEnrolled;      // Toplam kayıtlı
+                document.getElementById('totalAvailable').textContent = totalAvailable;    // Toplam boş kontenjan
+                document.getElementById('fullClasses').textContent = fullClasses;          // Dolu sınıf sayısı
+                
+                // ===== DOLU SINIF UYARISI =====
+                // Dolu sınıf sayısına göre renk sınıfını değiştir
+                const fullClassesElement = document.getElementById('fullClasses').closest('.capacity-stat');
+                if (fullClasses > 0) {
+                    // Dolu sınıflar varsa kırmızı renk sınıfı uygula
+                    fullClassesElement.className = 'capacity-stat full';
+                } else {
+                    // Dolu sınıf yoksa yeşil renk sınıfı uygula
+                    fullClassesElement.className = 'capacity-stat available';
+                }
+            }
+            
+            // ===== KULLANICI UYARISI =====
+            // Eğer dolu sınıflar varsa kullanıcıya uyarı göster
+            if (fullClasses > 0) {
+                showNotification(`${fullClasses} sınıf dolu! Lütfen kontenjanı olan eğitimcileri seçin.`, 'warning');
+            }
+        }
+        
+        // ===== MEVCUT EĞİTİM PLANLARINI YÜKLEME =====
+        
+        /**
+         * Veritabanından mevcut eğitim planlarını yükler ve başarı durumlarını günceller
+         */
+        function loadExistingTrainingPlans() {
+            fetch('api/get_planned_skills.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.planned_skills && data.planned_skills.length > 0) {
+                        // ===== EĞİTİM PLANLARINI GÖSTER =====
+                        // Mevcut eğitim planlarını göster
+                        displayAllPlannedSkills(document.getElementById('egitimPlaniTbody'), data.planned_skills, [], '');
+                        
+                        // ===== BAŞARI DURUMLARINI YÜKLE =====
+                        // Eğitimciler yüklendikten sonra başarı durumlarını yükle
+                        setTimeout(() => {
+                            loadTrainingStatuses();
+                        }, 1000);
+                        
+                        // Geri dönüş butonunun durumunu güncelle
+                        setTimeout(() => {
+                            geriDonButonDurumunuGuncelle();
+                        }, 500);
+                    } else {
+                        // Eğitim planı yoksa boş durum mesajını göster
+                        document.getElementById('emptyState').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Eğitim planları yüklenirken hata oluştu:', error);
+                    document.getElementById('emptyState').style.display = 'block';
+                });
+        }
+        
+        /**
+         * Veritabanından başarı durumlarını yükler ve tablodaki butonları günceller
+         */
+        function loadTrainingStatuses() {
+            // ===== API ÇAĞRISI =====
+            fetch('api/get_training_statuses.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('📊 Başarı durumları yüklendi:', data.statuses);
+                        
+                        // ===== TABLO BUTONLARINI GÜNCELLE =====
+                        // Her satırdaki başarı durumu butonunu güncelle
+                        data.statuses.forEach(status => {
+                            updateStatusButton(status.person_name, status.skill_name, status.status);
+                        });
+                        
+                    } else {
+                        console.error('❌ Başarı durumları yüklenemedi:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Başarı durumu yükleme hatası:', error);
+                    // Hata durumunda sessizce devam et (kritik değil)
+                });
+        }
+        
+        /**
+         * Belirli bir kişi-beceri kombinasyonunun başarı durumu butonunu günceller
+         * @param {string} personName - Kişi adı
+         * @param {string} skillName - Beceri adı
+         * @param {string} status - Durum: 'pending' veya 'completed'
+         */
+        function updateStatusButton(personName, skillName, status) {
+            // ===== TABLO SATIRINI BUL =====
+            const rows = document.querySelectorAll('#egitimPlaniTbody tr');
+            
+            rows.forEach(row => {
+                const rowPersonName = row.cells[1].textContent.trim();  // Ad Soyad
+                const rowSkillName = row.cells[2].textContent.trim();   // Eğitim
+                
+                // Eşleşen satırı bul
+                if (rowPersonName === personName && rowSkillName === skillName) {
+                    const statusButton = row.querySelector('.durum-kutusu');
+                    
+                    if (statusButton) {
+                        if (status === 'completed') {
+                            // Tamamlandı durumu
+                            statusButton.textContent = '✓';
+                            statusButton.classList.add('aktif');
+                            statusButton.style.backgroundColor = '#28a745';
+                            statusButton.style.color = 'white';
+                            statusButton.style.borderColor = '#28a745';
+                        } else {
+                            // Bekliyor durumu
+                            statusButton.textContent = ' ';
+                            statusButton.classList.remove('aktif');
+                            statusButton.style.backgroundColor = 'white';
+                            statusButton.style.color = '#007bff';
+                            statusButton.style.borderColor = '#007bff';
+                        }
+                    }
+                }
+            });
+        }
+        
+        // ===== ANA SAYFAYA DÖNÜŞ KONTROLÜ =====
+        
+        /**
+         * Geri dönüş butonuna tıklandığında çalışan ana kontrol fonksiyonu
+         * Tüm eğitimciler seçilmeden ana sayfaya dönüşe izin vermez
+         * @returns {boolean} Dönüş izni verildiyse true, aksi halde false
+         */
+        function geriDonKontrol() {
+            // ===== EĞİTİMCİ SEÇİM KONTROLÜ =====
+            // Sayfadaki tüm eğitimci dropdown'larını bul
+            const egitimciDropdowns = document.querySelectorAll('.egitimci-dropdown');
+            let secilmeyenEgitimciVar = false;
+            let secilmeyenEgitimciler = [];
+            
+            // Her dropdown'ı kontrol et ve seçilmeyenleri listele
+            egitimciDropdowns.forEach(dropdown => {
+                if (!dropdown.value || dropdown.value.trim() === '') {
+                    secilmeyenEgitimciVar = true;
+                    const personName = dropdown.getAttribute('data-person');    // Kişi adı
+                    const skillName = dropdown.getAttribute('data-skill');      // Beceri adı
+                    secilmeyenEgitimciler.push({ person: personName, skill: skillName });
+                }
+            });
+            
+            if (secilmeyenEgitimciVar) {
+                // ===== EĞİTİMCİLER EKSİK - UYARI GÖSTER =====
+                // Seçilmeyen eğitimcilerin listesini oluştur
+                const secilmeyenListesi = secilmeyenEgitimciler.map(item => 
+                    `${item.person} - ${item.skill}`
+                ).join(', ');
+                
+                // Kullanıcıya detaylı uyarı göster
+                showNotification(
+                    `Lütfen tüm eğitimcileri seçin! Seçilmeyen: ${secilmeyenListesi}`, 
+                    'warning'
+                );
+                
+                // ===== GÖRSEL UYARI =====
+                // Seçilmeyen dropdown'ları kırmızı ile vurgula
+                egitimciDropdowns.forEach(dropdown => {
+                    if (!dropdown.value || dropdown.value.trim() === '') {
+                        dropdown.style.borderColor = '#dc3545';  // Kırmızı kenarlık
+                        dropdown.style.boxShadow = '0 0 0 2px rgba(220, 53, 69, 0.2)';  // Kırmızı gölge
+                        
+                        // 3 saniye sonra vurgulamayı kaldır (normal stile dön)
+                        setTimeout(() => {
+                            dropdown.style.borderColor = '';
+                            dropdown.style.boxShadow = '';
+                        }, 3000);
+                    }
+                });
+                
+                return false;  // Dönüş izni verilmedi
+            } else {
+                // ===== TÜM EĞİTİMCİLER SEÇİLDİ - DÖNÜŞ İZNİ =====
+                // Başarı mesajı göster
+                showNotification('Eğitimciler başarıyla atandı! Ana sayfaya yönlendiriliyorsunuz...', 'success');
+                
+                // 1.5 saniye sonra ana sayfaya yönlendir (kullanıcının mesajı görmesi için)
+                setTimeout(() => {
+                    window.location.href = 'home.html';
+                }, 1500);
+                
+                return true;  // Dönüş izni verildi
+            }
+        }
+        
+        // ===== BİLDİRİM SİSTEMİ =====
+        
+        /**
+         * Kullanıcıya geçici bildirim mesajları gösterir
+         * @param {string} message - Gösterilecek mesaj metni
+         * @param {string} type - Bildirim türü: 'success', 'warning', 'error' (varsayılan: 'success')
+         */
+        function showNotification(message, type = 'success') {
+            // ===== BİLDİRİM ELEMENTİ OLUŞTURMA =====
+            const container = document.getElementById('notification-container');  // Bildirim container'ı
+            const notification = document.createElement('div');                  // Yeni bildirim elementi
+            
+            // CSS sınıflarını ayarla (notification + tür: success/warning/error)
+            notification.className = `notification ${type}`;
+            notification.textContent = message;  // Mesaj metnini ayarla
+            
+            // ===== BİLDİRİMİ GÖSTER =====
+            container.appendChild(notification);  // Bildirimi sayfaya ekle
+            
+            // ===== OTOMATİK KALDIRMA =====
+            // 3 saniye sonra bildirimi otomatik olarak kaldır
+            setTimeout(() => {
+                notification.remove();  // Bildirim elementini DOM'dan kaldır
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
