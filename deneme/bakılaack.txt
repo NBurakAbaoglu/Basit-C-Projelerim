@@ -1,0 +1,419 @@
+CREATE TABLE organizations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    column_position INT NOT NULL DEFAULT 0,  -- Sütun numarası burada saklanıyor
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_column_position (column_position)
+) organizasyonlar veritabanında kaydediliyor o yüzden bütün organizasyonları silersen sorun kalkar
+değişiklik yapılan yerler 
+//burda değişiklik yapıldı
+function addRow() {
+    const tbody = document.querySelector('.excel-table tbody');
+    const table = document.querySelector('.excel-table');
+    const newRow = document.createElement('tr');
+    
+    // İlk 4 hücreyi boş olarak ekle (sıra, şirket adı, ünvan, Sicil No)
+    for (let i = 0; i < 4; i++) {
+        const emptyCell = document.createElement('td');
+        emptyCell.className = 'empty-cell';
+        newRow.appendChild(emptyCell);
+    }
+    
+    // Ad Soyad hücresi (boş, tıklanabilir) - 5. sütun
+    const headerCell = document.createElement('td');
+    headerCell.className = 'row-header';
+    headerCell.onclick = function() { addNameRow(this); }; // Tıklanınca isim ekleme
+    newRow.appendChild(headerCell);
+        //burda değişiklik yapıldı
+            // Mevcut sütun sayısına göre boş hücreler ekleniyor
+        const firstRow = tbody.querySelector('tr');
+        if (firstRow) {
+            const columnCount = firstRow.children.length - 1;
+            for (let i = 0; i < columnCount; i++) {
+                const cell = document.createElement('td');
+                if (i === 4 || i === 5) {
+                    // Kapasite input'u ekle
+                    cell.innerHTML = `
+                        <input class="capacity-input" type="number" placeholder="0" min="0" max="100"
+                               style="width: 100%; height: 40px; border: 2px solid rgb(52, 152, 219);
+                                      border-radius: 6px; background: rgb(255, 255, 255);
+                                      text-align: center; font-size: 0.9rem; font-weight: 500;
+                                      color: rgb(73, 80, 87); cursor: pointer; transition: 0.2s;
+                                      box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px;">
+                    `;
+----------------------------------------------------------------------------------------------------------------------
+//burda değişiklik yapıldı
+function addNameRow(clickedCell) {
+    // Eğer hücre boşsa, input kutusu aç
+    if (!clickedCell.textContent.trim()) {
+        clickedCell.innerHTML = `
+            <input type="text" class="name-input" placeholder="İsim yazın..."
+                   onblur="createNameText(this)"
+                   onkeydown="handleNameKeyDown(event, this)">
+        `;
+        clickedCell.querySelector('input').focus(); // Input'a odaklan
+    } else {
+        // Eğer hücrede zaten isim varsa, en alta yeni boş satır ekle
+        const tbody = clickedCell.closest('tbody');
+        const newRow = document.createElement('tr');
+        
+        // İlk 4 hücreyi boş olarak ekle (sıra, şirket adı, ünvan, Sicil No)
+        for (let i = 0; i < 4; i++) {
+            const emptyCell = document.createElement('td');
+            emptyCell.className = 'empty-cell';
+            newRow.appendChild(emptyCell);
+        }
+        
+        // Ad Soyad hücresi (boş, tıklanabilir) - 5. sütun
+        const headerCell = document.createElement('td');
+        headerCell.className = 'row-header';
+        headerCell.onclick = function() { addNameRow(this); };
+        newRow.appendChild(headerCell);
+        
+        // Diğer hücreleri ekle (mevcut sütun sayısına göre)
+        const firstRow = tbody.querySelector('tr');
+        if (firstRow) {
+            const columnCount = firstRow.children.length - 1;
+            for (let i = 0; i < columnCount; i++) {
+                const cell = document.createElement('td');
+                if (i === 4 || i === 5) {
+                    // Kapasite input'u ekle
+                    cell.innerHTML = `
+                        <input class="capacity-input" type="number" placeholder="0" min="0" max="100"
+                               style="width: 100%; height: 40px; border: 2px solid rgb(52, 152, 219);
+                                      border-radius: 6px; background: rgb(255, 255, 255);
+                                      text-align: center; font-size: 0.9rem; font-weight: 500;
+                                      color: rgb(73, 80, 87); cursor: pointer; transition: 0.2s;
+                                      box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px;">
+                    `;
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+//burda değişiklik olmuş olabilir kontrol et
+function loadOrganizations() {
+    console.log('🔄 Organizasyonlar yükleniyor...');
+    
+    fetch('api/get_organizations.php')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('📋 Organizasyon listesi:', data.organizations);
+            
+            // Mevcut organizasyonları temizle
+            clearExistingOrganizations();
+            
+            // Organizasyonları sütun pozisyonlarına göre sırala ve yeniden numaralandır
+            if (data.organizations.length > 0) {
+                // Organizasyonları column_position'a göre sırala
+                const sortedOrganizations = data.organizations.sort((a, b) => 
+                    parseInt(a.column_position) - parseInt(b.column_position)
+                );
+                //burda değişiklik yapıldı
+                // Önce gerekli sütunları ekle
+                const table = document.querySelector('.excel-table');
+                const thead = table.querySelector('thead tr');
+                const currentColumnCount = thead.children.length;
+                const neededColumnCount = sortedOrganizations.length + 7; // +7 for corner, 3 empty, İdeal Kapasite, Mevcut Kapasite, and Organizasyon Ekle columns
+                
+                // Eksik sütunları ekle
+                while (thead.children.length < neededColumnCount) {
+                    addColumn();
+                }
+                
+                // Sütun pozisyonlarını yeniden numaralandır (6'dan başlayarak)
+                const reorganizedOrganizations = sortedOrganizations.map((org, index) => ({
+                    ...org,
+                    new_column_position: index + 6 // 0: corner, 1-3: empty, 4: İdeal Kapasite, 5: Mevcut Kapasite, 6+: Organizasyonlar
+                }));
+                
+                console.log('🔄 Yeniden düzenlenmiş organizasyonlar:', reorganizedOrganizations);
+                
+                // Veritabanındaki column_position'ları güncelle
+                updateOrganizationPositions(reorganizedOrganizations);
+-------------------------------------------------------------------------------------------------------------------------------------
+//burda değişiklik yapıldı
+function addEmptyNameRow() {
+    const table = document.querySelector('.excel-table');
+    if (!table) return;
+    
+    const tbody = table.querySelector('tbody');
+    const thead = table.querySelector('thead tr');
+    
+    // Yeni satır oluştur
+    const newRow = document.createElement('tr');
+    
+    // İlk 4 hücreyi boş olarak ekle (sıra, şirket adı, ünvan, Sicil No)
+    for (let i = 0; i < 4; i++) {
+        const emptyCell = document.createElement('td');
+        emptyCell.className = 'empty-cell';
+        newRow.appendChild(emptyCell);
+    }
+    
+    // Ad Soyad hücresi (boş, tıklanabilir) - 5. sütun
+    const headerCell = document.createElement('td');
+    headerCell.className = 'row-header';
+    headerCell.onclick = function() { addNameRow(this); };
+    newRow.appendChild(headerCell);
+    //burda değişiklik yapıldı
+    // Diğer hücreleri ekle
+    const columnCount = thead.children.length - 1;
+    for (let i = 0; i < columnCount; i++) {
+        const cell = document.createElement('td');
+        if (i === 4 || i === 5) {
+            // Kapasite input'u ekle
+            cell.innerHTML = `
+                <input class="capacity-input" type="number" placeholder="0" min="0" max="100"
+                       style="width: 100%; height: 40px; border: 2px solid rgb(52, 152, 219);
+                              border-radius: 6px; background: rgb(255, 255, 255);
+                              text-align: center; font-size: 0.9rem; font-weight: 500;
+                              color: rgb(73, 80, 87); cursor: pointer; transition: 0.2s;
+                              box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px;">
+            `;
+---------------------------------------------------------------------------------------------------------------------
+//burda değişiklik yapıldı
+function createPersonFromDatabase(personName) {
+    const table = document.querySelector('.excel-table');
+    if (!table) return;
+    
+    const tbody = table.querySelector('tbody');
+    
+    // Yeni satır oluştur
+    const newRow = document.createElement('tr');
+    
+    // İlk 4 hücreyi boş olarak ekle (sıra, şirket adı, ünvan, Sicil No)
+    for (let i = 0; i < 4; i++) {
+        const emptyCell = document.createElement('td');
+        emptyCell.className = 'empty-cell';
+        newRow.appendChild(emptyCell);
+    }
+    
+    // Ad Soyad hücresi (5. sütun - index 4)
+    const headerCell = document.createElement('td');
+    headerCell.className = 'row-header';
+    headerCell.textContent = personName;
+    headerCell.onclick = function() { addNameRow(this); };
+    newRow.appendChild(headerCell);
+    //burda değişiklik yapıldı
+    // Diğer hücreleri ekle
+    const firstRow = tbody.querySelector('tr');
+    if (firstRow) {
+        const columnCount = firstRow.children.length - 1;
+        for (let i = 0; i < columnCount; i++) {
+            const cell = document.createElement('td');
+            if (i === 4 || i === 5) {
+                // Kapasite input'u ekle
+                cell.innerHTML = `
+                    <input class="capacity-input" type="number" placeholder="0" min="0" max="100"
+                           style="width: 100%; height: 40px; border: 2px solid rgb(52, 152, 219);
+                                  border-radius: 6px; background: rgb(255, 255, 255);
+                                  text-align: center; font-size: 0.9rem; font-weight: 500;
+                                  color: rgb(73, 80, 87); cursor: pointer; transition: 0.2s;
+                                  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px;">
+                `;
+------------------------------------------------------------------------------------------------------------------------
+
+            <table class="excel-table">
+    <thead>
+        <tr>
+            <th class="corner-cell"></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th><div class="vertical-text">Çalışanın İdeal Kapasitesi</div></th>
+            <th><div class="vertical-text">Çalışanın Mevcut Kapasitesi</div></th>
+            <th>
+                <div class="rotated-header" onclick="moveOrganizationHeader(this)">Organizasyon Ekle</div>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+       
+    <tr>
+        <td class="empty-cell"></td>
+        <td class="empty-cell"></td>
+        <td class="empty-cell"></td>
+        <td class="empty-cell"></td>
+        <td class="row-header">İdeal Kurumsal Kapasitesi</td>
+        <td class="empty-cell">
+            <input class="capacity-input ideal" type="number" placeholder="0" min="0" max="100">
+        </td>
+        <td class="empty-cell"></td>
+    </tr>
+    <tr>
+        <td class="empty-cell"></td>
+        <td class="empty-cell"></td>
+        <td class="empty-cell"></td>
+        <td class="empty-cell"></td>
+        <td class="row-header">Mevcut Kurumsal Kapasitesi</td>
+        <td class="empty-cell">
+            <input class="capacity-input mevcut" type="number" disabled placeholder="0" min="0" max="100">
+        </td>
+        <td class="empty-cell"></td>
+    </tr>
+
+
+                                 <tr>
+                                    <td class="row-header">sıra</td>
+                                    <td class="row-header">şirket adı</td>
+                                    <td class="row-header">ünvan</td>
+            <td class="row-header">Sicil No</td>
+             <td class="row-header">Ad Soyad</td>
+             <td class="empty-cell"></td>
+             <td class="empty-cell"></td>
+             <td class="empty-cell" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;"></td>
+         </tr>
+            </tbody>
+        </table>
+        </div>
+---------------------------------------------------------------------------------------------------------------------------------
+// burda değişiklik yapıldı
+        // Sütunları filtrele
+        function filterColumns(selectedOrganization) {
+            // Ana tablo sütunlarını filtrele
+            const mainTable = document.querySelector('.excel-table');
+            if (mainTable) {
+                const headerRow = mainTable.querySelector('thead tr');
+                const tbodyRows = mainTable.querySelectorAll('tbody tr');
+                
+                if (headerRow) {
+                    const headerCells = headerRow.children;
+                    
+                    // Eğer organizasyon seçildiyse, seçilen organizasyonu 8. sütuna taşı
+                    if (selectedOrganization) {
+                        // Seçilen organizasyonun sütununu bul
+                        let selectedColumnIndex = -1;
+                        for (let i = 6; i < headerCells.length; i++) {
+                            const headerCell = headerCells[i];
+                            const button = headerCell.querySelector('button');
+                            if (button && button.textContent.trim() === selectedOrganization) {
+                                selectedColumnIndex = i;
+                                break;
+                            }
+                        }
+                        
+                        // Eğer seçilen organizasyon bulunduysa, 8. sütuna taşı
+                        if (selectedColumnIndex !== -1 && selectedColumnIndex !== 7) {
+                            console.log(`🔄 Seçilen organizasyon "${selectedOrganization}" 8. sütuna taşınıyor...`);
+                            
+                            // Header'da sütunu taşı
+                            const selectedHeader = headerCells[selectedColumnIndex];
+                            const targetHeader = headerCells[7];
+                            
+                            // Header'ı taşı
+                            if (selectedColumnIndex > 7) {
+                                // Sağdan sola taşı
+                                headerRow.insertBefore(selectedHeader, targetHeader);
+                            } else {
+                                // Soldan sağa taşı
+                                headerRow.insertBefore(selectedHeader, targetHeader.nextSibling);
+                            }
+                            
+                            // Tüm satırlarda sütunu taşı
+                            tbodyRows.forEach(row => {
+                                const selectedCell = row.children[selectedColumnIndex];
+                                const targetCell = row.children[7];
+                                
+                                if (selectedCell && targetCell) {
+                                    if (selectedColumnIndex > 7) {
+                                        // Sağdan sola taşı
+                                        row.insertBefore(selectedCell, targetCell);
+                                    } else {
+                                        // Soldan sağa taşı
+                                        row.insertBefore(selectedCell, targetCell.nextSibling);
+                                    }
+                                }
+                            });
+                            
+                            console.log(`✅ Organizasyon "${selectedOrganization}" 8. sütuna taşındı`);
+                        }
+                    }
+                    //burda değişiklik yapıldı
+                    // Her sütunu kontrol et (0: corner, 1-3: boş, 4: İdeal Kapasite, 5: Mevcut Kapasite, 6+: Organizasyonlar)
+                    for (let i = 0; i < headerCells.length; i++) {
+                        const headerCell = headerCells[i];
+                        const headerText = headerCell.textContent.trim();
+                        
+                        let shouldShowColumn = true;
+                        
+                        // Temel sütunlar her zaman görünsün (corner, boş sütunlar, İdeal Kapasite, Mevcut Kapasite)
+                        if (i <= 5) {
+                            shouldShowColumn = true;
+                        } else if (selectedOrganization) {
+                            // Organizasyon seçildiyse tüm organizasyonlar görünsün
+                            shouldShowColumn = true;
+                        }
+                        
+                        // Header'ı göster/gizle
+                        if (shouldShowColumn) {
+                            headerCell.style.visibility = '';
+                            headerCell.style.display = '';
+                        } else {
+                            headerCell.style.visibility = 'hidden';
+                            // Boyutları koru
+                            headerCell.style.width = headerCell.offsetWidth + 'px';
+                            headerCell.style.height = headerCell.offsetHeight + 'px';
+                        }
+                        
+                        // Tüm satırlardaki bu sütunu göster/gizle
+                        tbodyRows.forEach(row => {
+                            const cell = row.children[i];
+                            if (cell) {
+                                // "Ad Soyad" satırındaki hücreler her zaman görünsün
+                                const isAdSoyadRow = row.querySelector('td:first-child') && 
+                                                    row.querySelector('td:first-child').textContent.trim() === 'Ad Soyad';
+                                
+                                if (isAdSoyadRow) {
+                                    cell.style.display = ''; // Ad Soyad satırındaki hücreler her zaman görünsün
+                                } else {
+                                    // Hücreyi gizle ama boyutunu koru
+                                    if (shouldShowColumn) {
+                                        cell.style.visibility = '';
+                                        cell.style.display = '';
+                                    } else {
+                                        cell.style.visibility = 'hidden';
+                                        // Boyutları koru
+                                        cell.style.width = cell.offsetWidth + 'px';
+                                        cell.style.height = cell.offsetHeight + 'px';
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+            
+            // Arama tablosu dinamik olarak oluşturulduğu için sütun filtreleme yapmıyoruz
+            // Bu tablo dashboard.js tarafından yönetiliyor
+        }
+--------------------------------------------------------------------------------------------------------------------------
+// Kişinin belirli bir organizasyona sahip olup olmadığını kontrol et (ana tablo)
+     function checkPersonHasOrganization(row, organizationName) {
+         const cells = row.querySelectorAll('td');
+         //burda değişiklik yapıldı
+         // İlk 6 hücreyi atla (Ad Soyad, boş sütunlar, İdeal Kapasite, Mevcut Kapasite)
+         for (let i = 6; i < cells.length; i++) {
+             const cell = cells[i];
+             const button = cell.querySelector('button');
+             
+             if (button) {
+                 const img = button.querySelector('img');
+                 if (img) {
+                     // Bu hücrede resim varsa, organizasyon sütununu kontrol et
+                     const table = row.closest('table');
+                     const thead = table.querySelector('thead');
+                     if (thead) {
+                         const headerRow = thead.querySelector('tr');
+                         if (headerRow && headerRow.children[i]) {
+                             const headerText = headerRow.children[i].textContent.trim();
+                             if (headerText === organizationName) {
+                                 return true;
+                             }
+                         }
+                     }
+                 }
+             }
+         }
+         
+         return false;
+     }
+
