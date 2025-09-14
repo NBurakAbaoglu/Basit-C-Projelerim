@@ -1,0 +1,48 @@
+[13-Sep-2025 08:31:36 Europe/Berlin] Veritabanına bağlanmaya çalışılıyor: localhost:3306 - kurumsal
+[13-Sep-2025 08:31:36 Europe/Berlin] Veritabanı bağlantısı başarılı
+[13-Sep-2025 08:32:34 Europe/Berlin] Veritabanına bağlanmaya çalışılıyor: localhost:3306 - kurumsal
+[13-Sep-2025 08:32:34 Europe/Berlin] Veritabanı bağlantısı başarılı
+[13-Sep-2025 08:35:14 Europe/Berlin] Veritabanına bağlanmaya çalışılıyor: localhost:3306 - kurumsal
+[13-Sep-2025 08:35:14 Europe/Berlin] Veritabanı bağlantısı başarılı
+[13-Sep-2025 10:13:22 Europe/Berlin] Veritabanına bağlanmaya çalışılıyor: localhost:3306 - kurumsal
+[13-Sep-2025 10:13:22 Europe/Berlin] Veritabanı bağlantısı başarılı
+[13-Sep-2025 10:13:22 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'status' in 'where clause' in C:\xampp\htdocs\polivalans\get_planned_skills.php:23
+Stack trace:
+#0 C:\xampp\htdocs\polivalans\get_planned_skills.php(23): mysqli->query('SELECT * FROM p...')
+#1 {main}
+  thrown in C:\xampp\htdocs\polivalans\get_planned_skills.php on line 23
+[13-Sep-2025 10:38:15 Europe/Berlin] Veritabanına bağlanmaya çalışılıyor: localhost:3306 - kurumsal
+[13-Sep-2025 10:38:15 Europe/Berlin] Veritabanı bağlantısı başarılı
+[13-Sep-2025 10:38:15 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'status' in 'where clause' in C:\xampp\htdocs\polivalans\get_planned_skills.php:23
+Stack trace:
+#0 C:\xampp\htdocs\polivalans\get_planned_skills.php(23): mysqli->query('SELECT * FROM p...')
+#1 {main}
+  thrown in C:\xampp\htdocs\polivalans\get_planned_skills.php on line 23
+[13-Sep-2025 11:47:06 Europe/Berlin] Veritabanına bağlanmaya çalışılıyor: localhost:3306 - kurumsal
+[13-Sep-2025 11:47:06 Europe/Berlin] Veritabanı bağlantısı başarılı
+[13-Sep-2025 11:47:06 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'status' in 'where clause' in C:\xampp\htdocs\polivalans\get_planned_skills.php:23
+Stack trace:
+#0 C:\xampp\htdocs\polivalans\get_planned_skills.php(23): mysqli->query('SELECT * FROM p...')
+#1 {main}
+  thrown in C:\xampp\htdocs\polivalans\get_planned_skills.php on line 23
+[13-Sep-2025 11:57:30 Europe/Berlin] Veritabanına bağlanmaya çalışılıyor: localhost:3306 - kurumsal
+[13-Sep-2025 11:57:30 Europe/Berlin] Veritabanı bağlantısı başarılı
+[13-Sep-2025 11:57:30 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'status' in 'where clause' in C:\xampp\htdocs\polivalans\get_planned_skills.php:23
+Stack trace:
+#0 C:\xampp\htdocs\polivalans\get_planned_skills.php(23): mysqli->query('SELECT * FROM p...')
+#1 {main}
+  thrown in C:\xampp\htdocs\polivalans\get_planned_skills.php on line 23
+[13-Sep-2025 12:01:12 Europe/Berlin] Veritabanına bağlanmaya çalışılıyor: localhost:3306 - kurumsal
+[13-Sep-2025 12:01:12 Europe/Berlin] Veritabanı bağlantısı başarılı
+[13-Sep-2025 12:01:12 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'status' in 'where clause' in C:\xampp\htdocs\polivalans\get_planned_skills.php:23
+Stack trace:
+#0 C:\xampp\htdocs\polivalans\get_planned_skills.php(23): mysqli->query('SELECT * FROM p...')
+#1 {main}
+  thrown in C:\xampp\htdocs\polivalans\get_planned_skills.php on line 23
+[13-Sep-2025 13:58:06 Europe/Berlin] Veritabanına bağlanmaya çalışılıyor: localhost:3306 - kurumsal
+[13-Sep-2025 13:58:06 Europe/Berlin] Veritabanı bağlantısı başarılı
+[13-Sep-2025 13:58:06 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'status' in 'where clause' in C:\xampp\htdocs\polivalans\get_planned_skills.php:23
+Stack trace:
+#0 C:\xampp\htdocs\polivalans\get_planned_skills.php(23): mysqli->query('SELECT * FROM p...')
+#1 {main}
+  thrown in C:\xampp\htdocs\polivalans\get_planned_skills.php on line 23

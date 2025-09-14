@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<title>Etkinlik Oluştur</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f4f6fb;
+    margin: 0;
+    padding: 0;
+  }
+  #container {
+    display: flex;
+    gap: 32px;
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 32px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+  }
+  #formContainer, #skillsTableContainer {
+    flex: 1;
+    min-width: 320px;
+  }
+  #formContainer {
+    background: #f9fafe;
+    border-radius: 10px;
+    padding: 28px 24px 18px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  }
+  h2, h3 {
+    color: #1a237e;
+    margin-bottom: 18px;
+    margin-top: 0;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  label {
+    display: block;
+    margin-top: 16px;
+    font-weight: 500;
+    color: #263238;
+    font-size: 15px;
+  }
+  input, select {
+    width: 100%;
+    padding: 9px 10px;
+    margin-top: 6px;
+    border: 1px solid #b0bec5;
+    border-radius: 5px;
+    font-size: 15px;
+    background: #fff;
+    transition: border 0.2s;
+  }
+  input:focus, select:focus {
+    border-color: #1976d2;
+    outline: none;
+  }
+  button[type="submit"] {
+    margin-top: 22px;
+    padding: 11px 0;
+    width: 100%;
+    background: linear-gradient(90deg, #1976d2 60%, #42a5f5 100%);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(25,118,210,0.08);
+    transition: background 0.2s;
+  }
+  button[type="submit"]:hover {
+    background: linear-gradient(90deg, #1565c0 60%, #1976d2 100%);
+  }
+  .error {
+    color: #d32f2f;
+    margin-top: 12px;
+    font-size: 14px;
+    min-height: 18px;
+  }
+  #eventInfo {
+    margin-top: 24px;
+    padding: 16px;
+    border: 1px solid #b0bec5;
+    background: #f5faff;
+    display: none;
+    border-radius: 7px;
+    font-size: 15px;
+    color: #263238;
+  }
+  #skillsTableContainer {
+    background: #f9fafe;
+    border-radius: 10px;
+    padding: 24px 18px 18px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    margin-bottom: 24px;
+    border-radius: 7px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(25,118,210,0.03);
+  }
+  th, td {
+    border: 1px solid #e3eaf2;
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 15px;
+  }
+  th {
+    background: #1976d2;
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+  tr:nth-child(even) td {
+    background: #f4f8fd;
+  }
+  #skillsTable, #multiSkillsTable {
+    margin-bottom: 18px;
+  }
+  @media (max-width: 900px) {
+    #container {
+      flex-direction: column;
+      padding: 12px;
+    }
+    #formContainer, #skillsTableContainer {
+      min-width: 0;
+      margin-bottom: 18px;
+    }
+  }
+</style>
+</head>
+<body>
+<div id="container">
+  <!-- Form Alanı -->
+  <div id="formContainer">
+    <h2>Etkinlik Oluştur</h2>
+    <form id="eventForm">
+      <label for="multiSkill">Çoklu Beceri Seç:</label>
+      <select id="multiSkill" name="multiSkill" required>
+        <option value="">-- Çoklu Beceri Seçiniz --</option>
+      </select>
+
+      <label for="basicSkill">Temel Beceri Seç:</label>
+      <select id="basicSkill" name="basicSkill" required>
+        <option value="">-- Temel Beceri Seçiniz --</option>
+      </select>
+
+      <label for="teacher">Öğretmen Seç:</label>
+      <select id="teacher" name="teacher" required>
+        <option value="">-- Öğretmen Seçiniz --</option>
+      </select>
+
+      <label for="startDate">Etkinlik Başlangıç Tarihi:</label>
+      <input type="date" id="startDate" name="startDate" required />
+
+      <label for="endDate">Etkinlik Bitiş Tarihi:</label>
+      <input type="date" id="endDate" name="endDate" required />
+
+      <label for="quota">Kontenjan (Kişi Sayısı):</label>
+      <input type="number" id="quota" name="quota" min="1" required />
+
+      <button type="submit">Oluştur</button>
+      <div id="error" class="error"></div>
+    </form>
+    <div id="eventInfo"></div>
+  </div>
+
+  <!-- Tablo Alanı -->
+  <div id="skillsTableContainer">
+    <h3>Temel Beceri Matriksi</h3>
+    <table id="skillsTable">
+      <thead>
+        <tr>
+          <th>Temel Beceri</th>
+          <th>Adet</th>
+        </tr>
+      </thead>
+      <tbody id="skillsTableBody">
+        <!-- JS ile doldurulacak -->
+      </tbody>
+    </table>
+    <h3 style="margin-top:30px;">Çoklu Beceri Matriksi</h3>
+    <table id="multiSkillsTable">
+      <thead>
+        <tr>
+          <th>Çoklu Beceri</th>
+          <th>Adet</th>
+        </tr>
+      </thead>
+      <tbody id="multiSkillsTableBody">
+        <!-- JS ile doldurulacak -->
+      </tbody>
+    </table>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const multiSkill = document.getElementById('multiSkill'); // Çoklu Beceri Dropdown
+    const basicSkill = document.getElementById('basicSkill'); // Temel Beceri Dropdown
+    const teacherSelect = document.getElementById('teacher'); // Öğretmen Dropdown
+
+    // --- Çoklu Beceri (Organizasyon) yükle ---
+    fetch('event_get_organizations.php')
+        .then(res => res.json())
+        .then(data => {
+            multiSkill.innerHTML = '<option value="">-- Organizasyon Seçiniz --</option>';
+            data.forEach(org => {
+                const option = document.createElement('option');
+                option.value = org.id;
+                option.textContent = org.name;
+                multiSkill.appendChild(option);
+            });
+        })
+        .catch(err => {
+            console.error('Organizasyonlar yüklenemedi:', err);
+            multiSkill.innerHTML = '<option disabled>Organizasyonlar yüklenemedi</option>';
+        });
+
+    // --- Çoklu Beceri değişince Temel Beceri yükle ---
+    multiSkill.addEventListener('change', () => {
+        const orgId = multiSkill.value;
+        basicSkill.innerHTML = '<option value="">-- Temel Beceri Seçiniz --</option>';
+
+        if (!orgId) return;
+
+        fetch(`get_skills.php?organization_id=${orgId}`)
+            .then(res => res.json())
+            .then(skills => {
+                skills.forEach(skill => {
+                    const option = document.createElement('option');
+                    option.value = skill.skill_name;
+                    option.textContent = skill.skill_name;
+                    basicSkill.appendChild(option);
+                });
+            })
+            .catch(err => {
+                console.error('Beceriler yüklenemedi:', err);
+            });
+
+        loadFilteredTeachers(); // Çoklu beceri değişince öğretmenleri filtrele
+    });
+
+    // --- Temel Beceri değişince öğretmenleri filtrele ---
+    basicSkill.addEventListener('change', loadFilteredTeachers);
+
+    // --- Öğretmenleri filtreleme fonksiyonu ---
+    function loadFilteredTeachers() {
+        const orgId = multiSkill.value;
+        const skillName = basicSkill.value;
+
+        teacherSelect.innerHTML = '<option value="">-- Öğretmen Seçiniz --</option>';
+
+        if (!orgId && !skillName) return;
+
+        const params = new URLSearchParams();
+        if (orgId) params.append('organization_id', orgId);
+        if (skillName) params.append('skill_name', skillName);
+
+        fetch('get_teachers.php?' + params.toString())
+    .then(res => res.json())
+    .then(data => {
+        teacherSelect.innerHTML = '<option value="">-- Öğretmen Seçiniz --</option>';
+
+        if (!Array.isArray(data)) {
+            console.error('Beklenmeyen cevap:', data);
+            const option = document.createElement('option');
+            option.textContent = data.error || 'Öğretmenler yüklenemedi';
+            option.disabled = true;
+            teacherSelect.appendChild(option);
+            return;
+        }
+
+        if (data.length === 0) {
+            const option = document.createElement('option');
+            option.textContent = 'Eğitmen bulunamadı';
+            option.disabled = true;
+            teacherSelect.appendChild(option);
+            return;
+        }
+
+        data.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.person_name; // veya t.id varsa kullanabilirsin
+            opt.textContent = t.person_name;
+            teacherSelect.appendChild(opt);
+        });
+    })
+    .catch(err => {
+        console.error('Öğretmenler yüklenemedi:', err);
+        const option = document.createElement('option');
+        option.textContent = 'Öğretmenler yüklenemedi';
+        option.disabled = true;
+        teacherSelect.appendChild(option);
+    });
+
+    }
+});
+document.getElementById('eventForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // Formun standart gönderimini engelle
+
+    const errorDiv = document.getElementById('error');
+
+    const orgId = document.getElementById('multiSkill').value;
+    const skillName = document.getElementById('basicSkill').value;
+    const teacherName = document.getElementById('teacher').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    const quota = document.getElementById('quota').value;
+    const description = document.getElementById('description') ? document.getElementById('description').value : '';
+
+    // Tarih kontrolü
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (start > end) {
+        errorDiv.textContent = "Başlangıç tarihi, bitiş tarihinden sonra olamaz!";
+        return;
+    }
+    if (start.getTime() === end.getTime()) {
+        errorDiv.textContent = "Başlangıç ve bitiş tarihleri aynı olamaz!";
+        return;
+    }
+
+    // FormData oluştur
+    const formData = new FormData();
+    formData.append('multiSkill', orgId);
+formData.append('basicSkill', skillName);
+formData.append('teacher', teacherName);
+formData.append('startDate', startDate);
+formData.append('endDate', endDate);
+formData.append('quota', quota);
+formData.append('description', description);
+
+
+
+    fetch('save_event.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("Etkinlik başarıyla oluşturuldu!");
+            this.reset();
+        } else {
+            errorDiv.textContent = data.message || "Bir hata oluştu.";
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        errorDiv.textContent = "Sunucu ile bağlantı kurulamadı.";
+    });
+});
+
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,132 @@
+<?php
+header('Content-Type: application/json');
+require_once __DIR__ . '/../config.php';
+
+try {
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    if (!isset($input['organization_id'])) {
+        throw new Exception('Organization ID gerekli');
+    }
+    
+    $organization_id = $input['organization_id'];
+    $person_id = isset($input['person_id']) ? $input['person_id'] : null;
+    
+    // Eğer person_id verilmişse, sadece o kişi için kontrol et
+    if ($person_id) {
+        $query = "
+            SELECT 
+                ps.id,
+                ps.person_id,
+                ps.skill_id,
+                os.skill_name,
+                pl.success_status,
+                pl.id as planlandi_id
+            FROM planned_skills ps
+            LEFT JOIN organization_skills os ON ps.skill_id = os.id
+            LEFT JOIN planlandi pl 
+                ON ps.person_id = pl.person_id 
+                AND ps.organization_id = pl.organization_id
+                AND ps.skill_id = pl.skill_id
+            WHERE ps.organization_id = ? AND ps.person_id = ?
+            ORDER BY ps.skill_id
+        ";
+        
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([$organization_id, $person_id]);
+        $skills = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Bu kişi için istatistikleri hesapla
+        $totalSkills = count($skills);
+        $completedSkills = 0;
+        $pendingSkills = 0;
+        $notStartedSkills = 0;
+        
+        foreach ($skills as $skill) {
+            if ($skill['success_status'] === 'completed') {
+                $completedSkills++;
+            } elseif ($skill['planlandi_id'] !== null) {
+                $pendingSkills++;
+            } else {
+                $notStartedSkills++;
+            }
+        }
+        
+        // Bu kişinin tüm becerileri tamamlandı mı kontrol et
+        $allCompleted = ($totalSkills > 0 && $completedSkills === $totalSkills);
+        
+        echo json_encode([
+            'success' => true,
+            'organization_id' => $organization_id,
+            'person_id' => $person_id,
+            'total_skills' => $totalSkills,
+            'completed_skills' => $completedSkills,
+            'pending_skills' => $pendingSkills,
+            'not_started_skills' => $notStartedSkills,
+            'all_completed' => $allCompleted,
+            'completion_percentage' => $totalSkills > 0 ? round(($completedSkills / $totalSkills) * 100, 2) : 0,
+            'check_type' => 'person_specific'
+        ]);
+    } else {
+        // Tüm organizasyon için kontrol et (eski davranış)
+        $query = "
+            SELECT 
+                ps.id,
+                ps.person_id,
+                ps.skill_id,
+                os.skill_name,
+                pl.success_status,
+                pl.id as planlandi_id
+            FROM planned_skills ps
+            LEFT JOIN organization_skills os ON ps.skill_id = os.id
+            LEFT JOIN planlandi pl 
+                ON ps.person_id = pl.person_id 
+                AND ps.organization_id = pl.organization_id
+                AND ps.skill_id = pl.skill_id
+            WHERE ps.organization_id = ?
+            ORDER BY ps.person_id, ps.skill_id
+        ";
+        
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([$organization_id]);
+        $skills = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // İstatistikleri hesapla
+        $totalSkills = count($skills);
+        $completedSkills = 0;
+        $pendingSkills = 0;
+        $notStartedSkills = 0;
+        
+        foreach ($skills as $skill) {
+            if ($skill['success_status'] === 'completed') {
+                $completedSkills++;
+            } elseif ($skill['planlandi_id'] !== null) {
+                $pendingSkills++;
+            } else {
+                $notStartedSkills++;
+            }
+        }
+        
+        // Tüm beceriler tamamlandı mı kontrol et
+        $allCompleted = ($totalSkills > 0 && $completedSkills === $totalSkills);
+        
+        echo json_encode([
+            'success' => true,
+            'organization_id' => $organization_id,
+            'total_skills' => $totalSkills,
+            'completed_skills' => $completedSkills,
+            'pending_skills' => $pendingSkills,
+            'not_started_skills' => $notStartedSkills,
+            'all_completed' => $allCompleted,
+            'completion_percentage' => $totalSkills > 0 ? round(($completedSkills / $totalSkills) * 100, 2) : 0,
+            'check_type' => 'organization_wide'
+        ]);
+    }
+    
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
+}
+?>
