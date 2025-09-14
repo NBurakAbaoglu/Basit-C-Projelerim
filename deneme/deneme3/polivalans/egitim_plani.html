@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eğitim Planı - Polivalans</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+/* FORM KART STİLİ */
+/* FORM GENEL STİLLERİ */
+#egitimPlaniForm, #cokluBeceriForm {
+    background-color: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 25px 30px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    margin-bottom: 40px; /* İki form arasında boşluk */
+    transition: box-shadow 0.3s ease;
+}
+
+#egitimPlaniForm:hover, #cokluBeceriForm:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+/* TABLO KAPSAYICI */
+.table-container {
+    overflow-x: auto; /* Küçük ekranlarda yatay kaydırma */
+    max-height: 500px; /* Maksimum yükseklik */
+    overflow-y: auto; /* Dikey kaydırma */
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Scroll bar özelleştirmesi */
+.table-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Firefox için scroll bar */
+.table-container {
+    scrollbar-width: thin;
+    scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+/* TABLO STİLİ */
+.egitim-table {
+    width: 100%;
+    border-collapse: separate; /* Kart görünümü için ayrı ayrı hücre */
+    border-spacing: 0 10px; /* Satırlar arasında boşluk */
+    min-width: 700px;
+}
+
+/* Başlık */
+.egitim-table thead {
+    background-color: #2980b9;
+    color: white;
+    border-radius: 12px 12px 0 0;
+}
+
+.egitim-table th,
+.egitim-table td {
+    padding: 14px 18px;
+    border: none;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 0.95rem;
+}
+
+/* Satır kart görünümü için */
+.egitim-table tbody tr {
+    background-color: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    border-radius: 10px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.egitim-table tbody tr + tr {
+    margin-top: 10px;
+}
+
+.egitim-table tbody tr:hover {
+    background-color: #d6e9f8;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    cursor: pointer;
+}
+
+/* Boş durum mesajı */
+.empty-state {
+    text-align: center;
+    color: #7f8c8d;
+    padding: 40px 20px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.empty-state i {
+    font-size: 60px;
+    color: #3498db;
+    margin-bottom: 15px;
+}
+
+.empty-state h3 {
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    font-size: 1rem;
+}
+
+/* RESPONSIVE AYARLAR */
+@media (max-width: 900px) {
+    .egitim-plani-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    #egitimPlaniForm {
+        padding: 20px;
+    }
+
+    .egitim-table {
+        min-width: 100%;
+        font-size: 0.9rem;
+    }
+
+    .table-container {
+        max-height: 400px; /* Mobilde daha küçük yükseklik */
+    }
+}
+
+@media (max-width: 480px) {
+    .geri-don-btn {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+
+    .egitim-plani-header h2 {
+        font-size: 1.4rem;
+    }
+}
+
+/* ------------------- */
+/* ÇOKLU BECERİ FORMU ÖZEL STİLLERİ */
+/* ------------------- */
+
+.coklu-beceri-container {
+    margin-top: 50px; /* İki form arası boşluk */
+}
+
+.coklu-beceri-container #cokluBeceriForm {
+    background-color: #f9fdf9;
+    border: 1px solid #27ae60;
+    border-radius: 10px;
+    padding: 25px 30px;
+    box-shadow: 0 4px 8px rgba(39, 174, 96, 0.15);
+}
+
+.coklu-beceri-container .egitim-plani-header h2 {
+    color: #27ae60;
+}
+
+.coklu-beceri-container .egitim-table thead {
+    background-color: #27ae60;
+    color: white;
+}
+
+.coklu-beceri-container .egitim-table tbody tr:nth-child(even) {
+    background-color: #eaf6ea;
+}
+
+.coklu-beceri-container .egitim-table tbody tr:hover {
+    background-color: #c6eac6;
+    cursor: pointer;
+}
+
+.coklu-beceri-container .empty-state i {
+    color: #27ae60;
+}
+
+/* ------------------- */
+/* SAĞ ÜSTTE İKİ BUTON YAN YANA */
+/* ------------------- */
+.button-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 12px;           /* Butonlar arası boşluk */
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Çoklu Beceri Butonu */
+.multi-skill-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: none;
+}
+
+.multi-skill-btn:hover {
+  background-color: #45a049;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.multi-skill-btn:active {
+  background-color: #3e8e41;
+  box-shadow: none;
+  transform: translateY(2px);
+}
+
+/* Ana Sayfaya Dön Butonu */
+.geri-don-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #007BFF;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+  border: none;
+}
+
+.geri-don-btn:hover {
+  background-color: #0056b3;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-decoration: none;
+}
+
+.geri-don-btn:active {
+  background-color: #00408d;
+  box-shadow: none;
+  transform: translateY(2px);
+}
+
+/* Çoklu Beceri Tablosu Butonu */
+.multi-skill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #28a745;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+  border: none;
+  margin-right: 10px;
+}
+
+.multi-skill-btn:hover {
+  background-color: #218838;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.multi-skill-btn:active {
+  background-color: #1e7e34;
+  box-shadow: none;
+  transform: translateY(2px);
+}
+.edit-btn, .save-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 3px 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.edit-btn:hover, .save-btn:hover {
+    background-color: #2980b9;
+}
+
+.save-btn:disabled {
+    background-color: #95a5a6 !important;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.save-btn:disabled:hover {
+    background-color: #95a5a6 !important;
+}
+
+input[type="checkbox"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+
+
+    </style>
+    
+    <!-- Global fonksiyonlar - sayfa yüklenmeden önce tanımlanmalı -->
+    <script>
+        // Ana sayfaya dön fonksiyonu
+        function geriDon() {
+            try {
+                console.log('Ana sayfaya yönlendiriliyor...');
+                // Ana sayfaya yönlendir
+                window.location.href = 'home.html';
+            } catch (error) {
+                console.error('Ana sayfaya dönüş hatası:', error);
+                // Hata durumunda da ana sayfaya yönlendir
+                window.location.href = 'home.html';
+            }
+        }
+
+        // Çoklu beceri tablosuna scroll fonksiyonu
+        function scrollToMultiSkill() {
+            try {
+                console.log('Çoklu beceri tablosuna scroll yapılıyor...');
+                // Çoklu beceri formunu bul
+                const multiSkillForm = document.getElementById('cokluBeceriForm');
+                if (multiSkillForm) {
+                    // Çoklu beceri formuna scroll yap
+                    multiSkillForm.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    
+                    // Formu vurgula (opsiyonel)
+                    multiSkillForm.style.border = '3px solid #007bff';
+                    setTimeout(() => {
+                        multiSkillForm.style.border = '1px solid #ddd';
+                    }, 2000);
+                } else {
+                    console.warn('Çoklu beceri formu bulunamadı');
+                    // Sayfanın başına scroll yap
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            } catch (error) {
+                console.error('Çoklu beceri tablosuna scroll hatası:', error);
+                // Hata durumunda sayfanın başına scroll yap
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+    </script>
+</head>
+<body>
+    
+    <!-- Eğitim Planı Sayfası -->
+<div class="egitim-plani-container">
+    <div class="egitim-plani-header">
+        <h2><i class="fas fa-graduation-cap"></i>TEMEL </h2>
+        <!-- ===== GERİ DÖNÜŞ BUTONU ===== -->
+        <div class="button-container">
+            <button type="button" class="multi-skill-btn" onclick="scrollToMultiSkill()">
+                <i class="fas fa-table"></i> Çoklu Beceri Tablosu
+            </button>
+            <button type="button" class="geri-don-btn" onclick="geriDon()">
+                <i class="fas fa-arrow-left"></i> Ana Sayfaya Dön
+            </button>
+        </div>
+    </div>
+    
+    <!-- FORM BAŞLANGICI -->
+    <form id="egitimPlaniForm" action="/submit" method="post">
+        <div class="table-container">
+            <table class="egitim-table">
+                <thead>
+                    <tr>
+                        <th>Sicil No</th>
+                        <th>Şirket Adı</th>
+                        <th>Ünvan</th>
+                        <th>Ad Soyad</th>
+                        <th>Eğitimler</th>
+                        <th>Eğitimciler</th>
+                        <th>Takvim</th>
+                        <th>Başarı Durumu</th>
+                    </tr>
+                </thead>
+                <tbody id="egitimPlaniTbody">
+                    <!-- Veriler JavaScript ile doldurulacak -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Boş durum mesajı -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <i class="fas fa-graduation-cap"></i>
+            <h3>Henüz Eğitim Planı Oluşturulmamış</h3>
+            <p>Eğitim planı oluşturmak için ana sayfadan beceri seçimi yapın.</p>
+        </div>
+    </form>
+    <!-- FORM SONU -->
+</div>
+
+<!-- Yeni Çoklu Beceri Formu -->
+<div class="egitim-plani-container" style="margin-top: 50px;">
+    <div class="egitim-plani-header">
+        <h2><i class="fas fa-layer-group"></i> Çoklu Beceri</h2>
+    </div>
+
+    <form id="cokluBeceriForm" action="/submit-multi" method="post">
+        <div class="table-container">
+            <table class="egitim-table">
+                <thead>
+                    <tr>
+                        <th>Sicil No</th>
+                        <th>Şirket Adı</th>
+                        <th>Ünvan</th>
+                        <th>Ad Soyad</th>
+                        <th>Eğitimler</th>
+                        <th>Eğitimciler</th>
+                        <th>Takvim</th>
+                        <th>Başarı Durumu</th>
+                    </tr>
+                </thead>
+                <tbody id="cokluBeceriTbody">
+                    <!-- Veriler JavaScript ile doldurulacak -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="emptyMultiState" class="empty-state" style="display: none;">
+            <i class="fas fa-layer-group"></i>
+            <h3>Henüz Çoklu Beceri Planı Oluşturulmamış</h3>
+            <p>Çoklu beceri planı oluşturmak için ilgili seçenekleri seçin.</p>
+        </div>
+        <!-- Bildirim container -->
+        <div id="notification-container"></div>
+    </form>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const tbody = document.getElementById("egitimPlaniTbody");
+    const emptyState = document.getElementById("emptyState");
+
+    fetch('get_temel_beceri.php')
+    .then(res => res.json())
+    .then(data => {
+        const { plannedSkills, events, teachers } = data;
+
+        if(!plannedSkills || plannedSkills.length === 0){
+            emptyState.style.display = "block";
+            return;
+        }
+
+        plannedSkills.forEach(ps => {
+            const tr = document.createElement("tr");
+
+            // Temel sütunlar
+            tr.innerHTML = `
+                <td>${ps.registration_no || '-'}</td>
+                <td>${ps.company_name || 'Bilinmiyor'}</td>
+                <td>${ps.title || '-'}</td>
+                <td>${ps.person_name || 'Kayıtlı Değil'}</td>
+                <td>${ps.skill_name || 'Tanımsız'}</td>
+            `;
+
+            // Eğitmen dropdown
+const tdTeacher = document.createElement("td");
+const teacherSelect = document.createElement("select");
+teacherSelect.name = `teacher_${ps.id}`;
+let defaultT = document.createElement("option");
+defaultT.value = "";
+defaultT.text = "Seçiniz";
+teacherSelect.appendChild(defaultT);
+
+// Takvim dropdown
+const tdEvent = document.createElement("td");
+const eventSelect = document.createElement("select");
+eventSelect.name = `event_${ps.id}`;
+let defaultE = document.createElement("option");
+defaultE.value = "";
+defaultE.text = "Seçiniz";
+eventSelect.appendChild(defaultE);
+
+// Eğitmenlerin tekrar eklenmemesi için Set
+const addedTeachers = new Set();
+
+// Events tablosunu filtrele
+events.filter(e => e.lesson_id == ps.skill_id).forEach(e => {
+    // Eğitmen
+    const teacher = teachers.find(t => t.id == e.teacher_id);
+    if (teacher && !addedTeachers.has(teacher.id)) {
+        let optT = document.createElement("option");
+        optT.value = teacher.id;
+        optT.text = teacher.person_name;
+
+        // Daha önce seçilmişse seçili yap
+        if(ps.selected_teacher && teacher.id == ps.selected_teacher) {
+            optT.selected = true;
+        }
+
+        teacherSelect.appendChild(optT);
+        addedTeachers.add(teacher.id); // Set'e ekle
+    }
+                // Takvim
+                let optE = document.createElement("option");
+                const start = new Date(e.event_date).toLocaleString();
+                const end = new Date(e.end_date).toLocaleString();
+                optE.value = e.id;
+                optE.text = `${start} - ${end}`;
+
+                // Daha önce seçilmişse seçili yap
+                if(ps.selected_event && e.id == ps.selected_event) {
+                    optE.selected = true;
+                }
+
+                eventSelect.appendChild(optE);
+            });
+
+            tdTeacher.appendChild(teacherSelect);
+            tdEvent.appendChild(eventSelect);
+            tr.appendChild(tdTeacher);
+            tr.appendChild(tdEvent);
+
+            // Başarı durumu checkbox + Düzenle ve Kaydet butonları
+            const tdSuccess = document.createElement("td");
+
+            // Checkbox
+            const cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.name = `success_${ps.id}`;
+            cb.style.marginRight = "5px";
+
+            // Eğer daha önce tamamlandıysa işaretle
+            if(ps.success_status === 'completed' || ps.success_status === 'başarılı') {
+                cb.checked = true;
+            }
+
+            // Checkbox değişikliklerini takip et
+            cb.addEventListener('change', function() {
+                console.log('Checkbox değişti:', this.checked, 'Success status:', ps.success_status);
+            });
+
+            tdSuccess.appendChild(cb);
+
+
+            // Kaydet butonu
+            const saveBtn = document.createElement("button");
+            saveBtn.type = "button";
+            saveBtn.textContent = "Kaydet";
+            saveBtn.className = "save-btn";
+            saveBtn.onclick = () => {
+                const selectedTeacher = teacherSelect.value;
+                const selectedEvent = eventSelect.value;
+
+                if (!selectedTeacher) {
+                    alert('Lütfen bir eğitmen seçiniz!');
+                    return;
+                }
+                if (!selectedEvent) {
+                    alert('Lütfen bir takvim seçiniz!');
+                    return;
+                }
+
+                // Butonu devre dışı bırak ve yükleme durumunu göster
+                saveBtn.disabled = true;
+                saveBtn.textContent = "Kaydediliyor...";
+                saveBtn.style.backgroundColor = "#95a5a6";
+
+                const data = {
+                    person_id: ps.person_id,
+                    organization_id: ps.organization_id,
+                    skill_id: ps.skill_id,
+                    teacher_id: selectedTeacher,
+                    event_id: selectedEvent,
+                    target_level: 1,
+                    start_date: new Date().toISOString().slice(0,10),
+                    end_date: new Date().toISOString().slice(0,10),
+                    status: 'planlandi',
+                    priority: 1,
+                    notes: '',
+                    created_by: 1,
+                    success_status: cb.checked ? 'completed' : 'pending'
+                };
+
+                fetch('saved_temelbeceri.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                })
+                .then(res => res.json())
+                .then(resp => {
+                    if(resp.success){
+                        // Başarılı durumda butonu güncelle
+                        saveBtn.textContent = "Güncellendi";
+                        saveBtn.style.backgroundColor = "#27ae60";
+                        saveBtn.disabled = true;
+                        
+                        // Dropdown'ları devre dışı bırak
+                        teacherSelect.disabled = true;
+                        eventSelect.disabled = true;
+                        
+                        // Checkbox'ı da devre dışı bırak (artık değiştirilemez)
+                        cb.disabled = true;
+                        
+                        alert('Başarıyla kaydedildi!');
+                        
+                        // Bu organizasyon için pie chart durumunu güncelle
+                        updatePieChartForCurrentOrganization(ps.organization_id, ps.person_name);
+                    } else {
+                        alert('Kaydetme hatası: ' + resp.message);
+                        // Hata durumunda butonu eski haline getir
+                        saveBtn.disabled = false;
+                        saveBtn.textContent = "Kaydet";
+                        saveBtn.style.backgroundColor = "#3498db";
+                    }
+                })
+                .catch(err => {
+                    console.error('Kaydetme hatası:', err);
+                    alert('Bir hata oluştu!');
+                    // Hata durumunda butonu eski haline getir
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = "Kaydet";
+                    saveBtn.style.backgroundColor = "#3498db";
+                });
+            };
+            tdSuccess.appendChild(saveBtn);
+
+            tr.appendChild(tdSuccess);
+            tbody.appendChild(tr);
+        });
+    })
+    .catch(err => console.error("Veri çekme hatası:", err));
+});
+
+// Belirli bir organizasyon ve kişi için pie chart durumunu güncelle
+function updatePieChartForCurrentOrganization(organizationId, personName, personId) {
+    // Bu kişi ve organizasyon için beceri durumunu kontrol et
+    fetch('api/check_organization_skills_status.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            organization_id: organizationId,
+            person_id: personId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Beceri durumuna göre pie chart durumunu belirle
+            const pieChartStatus = (data.all_completed && data.total_skills > 0) ? 'completed' : 'pending';
+            
+            console.log(`Kişi ${personId} - Organizasyon ${organizationId}: ${data.completed_skills}/${data.total_skills} beceri tamamlandı - ${pieChartStatus}`);
+            
+            // Durumu veritabanına kaydet
+            fetch('api/update_pie_chart_status.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    organization_id: organizationId,
+                    row_name: personName,
+                    pie_chart_status: pieChartStatus
+                })
+            })
+            .then(response => response.json())
+            .then(updateData => {
+                if (updateData.success) {
+                    console.log(`Pie chart durumu güncellendi: ${updateData.message}`);
+                    
+                    // Ana sayfadaki ilgili pie chart'ı güncelle
+                    if (window.parent && window.parent.document) {
+                        const pieCharts = window.parent.document.querySelectorAll('img[src*="pie"]');
+                        pieCharts.forEach(img => {
+                            const cell = img.closest('td');
+                            if (cell) {
+                                // Bu hücrenin organizasyon ID'sini kontrol et
+                                window.parent.updatePieChartForOrganization(img, cell);
+                            }
+                        });
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Pie chart durumu kaydedilemedi:', error);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Beceri durumu kontrol hatası:', error);
+    });
+}
+
+
+</script>
+
+
+
+    
+    
+</body>
+</html>
